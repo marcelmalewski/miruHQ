@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "miruHQ",
+  "version": "0.1.0",
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": ["tabs", "storage"]
+}
+
