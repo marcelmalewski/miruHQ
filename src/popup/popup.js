@@ -1,5 +1,5 @@
-document.getElementById('open').addEventListener('click', () => {
-  chrome.tabs.create({
-    url: chrome.runtime.getURL('index.html')
+document.getElementById('open-fullscreen-btn').addEventListener('click', () => {
+  void chrome.tabs.create({
+    url: chrome.runtime.getURL('index.html'),
   });
 });
