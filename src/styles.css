@@ -2,4 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* You can add global styles to this file, and also import other style files */
+@layer components {
+  .screen-box-center {
+    @apply flex h-screen w-screen flex-col items-center justify-center bg-primary text-black;
+  }
+  .screen-box-between {
+    @apply flex h-screen w-screen flex-col justify-between bg-primary text-black;
+  }
+  .test {
+    @apply border border-black;
+  }
+}
