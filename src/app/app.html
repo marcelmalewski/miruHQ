@@ -1,35 +1,31 @@
-<main
-  class="bg-[var(--bg)] text-[var(--primary)] h-screen w-screen flex items-center justify-center"
->
-  <div class="text-center space-y-4">
-    <div class="flex justify-center gap-6 text-2xl">
-      <a
-        href="https://www.linkedin.com/in/marcel-malewski"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-black hover:underline flex items-center gap-2"
-      >
-        LinkedIn
-      </a>
-
-      <a
-        href="https://github.com/marcelmalewski"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-black hover:underline flex items-center gap-2"
-      >
-        GitHub
-      </a>
+<div class="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+  <!-- Navigation -->
+  <nav class="bg-white/10 backdrop-blur-sm border-b border-white/20">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-center gap-4 py-4">
+        <a
+          routerLink="/home"
+          routerLinkActive="bg-white text-indigo-600 font-semibold shadow-md"
+          class="px-4 py-2 text-white hover:bg-white/20 rounded-lg transition-colors"
+        >
+          Home
+        </a>
+        <a
+          routerLink="/other"
+          routerLinkActive="bg-white text-indigo-600 font-semibold shadow-md"
+          class="px-4 py-2 text-white hover:bg-white/20 rounded-lg transition-colors"
+        >
+          Other
+        </a>
+      </div>
     </div>
-    <a
-      href="mailto:marcelmalewski9@gmail.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="text-xl text-black hover:text-neutral-600"
-    >
-      marcelmalewski9&#64;gmail.com
-    </a>
-  </div>
-</main>
+  </nav>
 
-<router-outlet />
+  <!-- Content -->
+  <div class="container mx-auto px-4 py-16">
+    <div class="max-w-2xl mx-auto text-center">
+      <router-outlet />
+    </div>
+  </div>
+</div>
+

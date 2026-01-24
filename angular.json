@@ -22,14 +22,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },
-              "src/manifest.json",
-              "src/popup"
+              }
             ],
             "styles": [
               "src/styles.css"
-            ],
-            "outputPath": "dist/extension"
+            ]
           },
           "configurations": {
             "production": {
@@ -45,7 +42,15 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "none"
+              "outputHashing": "none",
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": false
+              }
             },
             "development": {
               "optimization": false,

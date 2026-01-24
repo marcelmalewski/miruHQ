@@ -1,6 +1,12 @@
-# MiruHQ
+# FocusHelper
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.0.
+A Chrome extension to help you stay focused and productive, built with Angular and Tailwind CSS.
+
+## Features
+
+- Opens in a new tab when clicking the extension icon
+- Clean, modern UI with Tailwind CSS
+- Refresh button to update the view
 
 ## Development server
 
@@ -11,6 +17,26 @@ ng serve
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+## Building the Chrome Extension
+
+To build the extension for Chrome:
+
+```bash
+npm run build:extension
+```
+
+The built extension will be in `dist/FocusHelper/browser/`.
+
+## Installing the Extension in Chrome
+
+1. Build the extension using `npm run build:extension`
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable "Developer mode" (toggle in the top right)
+4. Click "Load unpacked"
+5. Select the `dist/FocusHelper/browser` folder
+6. The FocusHelper extension should now appear in your toolbar
+7. Click the extension icon to open FocusHelper in a new tab
 
 ## Code scaffolding
 
