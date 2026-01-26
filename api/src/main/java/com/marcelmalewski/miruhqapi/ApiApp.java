@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MiruhqapiApplication {
+public class ApiApp {
 
     public static void main(String[] args) {
-        SpringApplication.run(MiruhqapiApplication.class, args);
+        SpringApplication.run(ApiApp.class, args);
     }
 
 }

@@ -6,7 +6,7 @@ plugins {
 
 group = "com.marcelmalewski"
 version = "0.0.1-SNAPSHOT"
-description = "miruhqapi"
+description = "api"
 
 java {
     toolchain {
