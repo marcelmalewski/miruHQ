@@ -4,10 +4,10 @@
 
 @layer components {
   .screen-box-center {
-    @apply flex h-screen w-screen flex-col items-center justify-center bg-primary text-black;
+    @apply flex h-screen w-screen flex-col items-center justify-center bg-bg-primary text-text-primary;
   }
   .screen-box-between {
-    @apply flex h-screen w-screen flex-col justify-between bg-primary text-black;
+    @apply flex h-screen w-screen flex-col justify-between bg-bg-primary text-text-primary;
   }
   .test {
     @apply border border-black;

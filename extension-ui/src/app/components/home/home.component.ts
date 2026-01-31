@@ -1,21 +1,20 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { AnimeService } from '../../services/anime.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, inject, Signal } from '@angular/core';
+import { Anime, AnimeService } from '../../services/anime.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
+  imports: [NgOptimizedImage],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   private readonly animeService = inject(AnimeService);
-  private readonly destroyRef = inject(DestroyRef);
 
-  ngOnInit() {
-    this.animeService
-      .get('59978')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((result) => {
-        console.log(result);
-      });
-  }
+  readonly animeList: Signal<Anime[]> = toSignal(
+    this.animeService.get({ ids: ['59978', '61211'] }),
+    {
+      initialValue: [],
+    },
+  );
 }

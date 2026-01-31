@@ -3,7 +3,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#F3F3E0',
+        'bg-primary': '#F3F3E0', // background main
+        'text-primary': '#000000', // default text
+        'brand-primary': '#27548A', // main brand color
+        'brand-secondary': '#DDA853', // secondary accent
       },
     },
   },

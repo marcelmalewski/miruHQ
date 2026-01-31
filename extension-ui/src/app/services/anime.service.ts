@@ -1,11 +1,22 @@
 import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { environment } from '../environment';
 
 export interface Anime {
   id: string;
   title: string;
+  startDate: string;
+  numEpisodes: string;
+  mainPicture: MainPicture;
+}
+
+export interface MainPicture {
+  medium: string;
+  large: string;
+}
+
+export interface AnimeSearchRequest {
+  ids: string[];
 }
 
 @Injectable({
@@ -14,14 +25,10 @@ export interface Anime {
 export class AnimeService {
   private readonly http = inject(HttpClient);
 
-  private readonly baseUrl = 'https://api.myanimelist.net/v2/anime';
-  private readonly fields = 'id,title,main_picture,start_date,status,my_list_status,num_episodes';
+  private readonly baseUrl = 'http://localhost:8080/api/anime';
 
-  get(animeId: string): Observable<Anime> {
-    const url = `${this.baseUrl}/${encodeURIComponent(animeId)}`;
-    const headers = new HttpHeaders({ 'X-MAL-CLIENT-ID': environment.malClientId });
-    const params = new HttpParams().set('fields', this.fields);
-
-    return this.http.get<Anime>(url, { headers, params });
+  get(request: AnimeSearchRequest): Observable<Anime[]> {
+    const url = `${this.baseUrl}/search`;
+    return this.http.post<Anime[]>(url, request);
   }
 }
