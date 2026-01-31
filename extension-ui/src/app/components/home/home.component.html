@@ -11,9 +11,13 @@
         <div class="p-4 w-3/5 flex flex-col text-sm">
           <h2 class="text-lg font-semibold text-text-primary">{{ anime.title }}</h2>
           <div class="text-gray-600 space-y-1">
-            <p><span class="font-medium text-gray-800">Start Date:</span> {{ anime.startDate }}</p>
-            <p><span class="font-medium text-gray-800">Episodes:</span> {{ anime.numEpisodes }}</p>
-            <p><span class="font-medium text-gray-800">Estimated End:</span> {{ getEstimatedEndDate(anime.startDate, anime.numEpisodes) }}</p>
+            <p><span class="font-medium text-gray-800">Start Date:</span> {{ anime.startDate }}
+            </p>
+            <p><span class="font-medium text-gray-800">Episodes:</span> {{ anime.numEpisodes }}
+            </p>
+            <p><span class="font-medium text-gray-800">Estimated End:</span> {{
+                getEstimatedEndDate(anime.startDate, anime.numEpisodes)
+              }}</p>
           </div>
         </div>
       </div>
