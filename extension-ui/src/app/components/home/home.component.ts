@@ -32,4 +32,10 @@ export class HomeComponent {
   prepareDetailsUrl(anime: Anime): string {
     return `https://myanimelist.net/anime/${anime.id}`;
   }
+
+  truncate(text: string): string {
+    const maxLength = 30;
+    if (!text) return '';
+    return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
+  }
 }
