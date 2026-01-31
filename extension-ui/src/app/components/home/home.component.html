@@ -11,15 +11,27 @@
           class="h-full w-2/5 object-cover"
         />
 
-        <div class="p-4 w-3/5 flex flex-col text-sm">
-          <h2 class="text-lg font-semibold text-text-primary mb-2">{{ anime.title }}</h2>
-          <div class="text-gray-600 space-y-1">
-            <p><span class="font-medium text-gray-800">Aired On:</span> {{ anime.startDate }}</p>
-            <p><span
-              class="font-medium text-gray-800">Total Episodes:</span> {{ anime.numEpisodes }}</p>
-            <p><span class="font-medium text-gray-800">Expected Finish:</span> {{
-                calculateEstimatedEndDateWithDays(anime.startDate, anime.numEpisodes)
-              }}</p>
+        <div class="p-4 w-3/5 flex flex-col justify-between text-sm">
+          <div>
+            <h2 class="text-lg font-semibold text-text-primary mb-2">{{ anime.title }}</h2>
+            <div class="text-gray-600 space-y-1">
+              <p><span class="font-medium text-gray-800">Aired On:</span> {{ anime.startDate }}</p>
+              <p><span
+                class="font-medium text-gray-800">Total Episodes:</span> {{ anime.numEpisodes }}</p>
+              <p><span class="font-medium text-gray-800">Expected Finish:</span> {{
+                  calculateEstimatedEndDateWithDays(anime.startDate, anime.numEpisodes)
+                }}</p>
+            </div>
+          </div>
+
+          <div class="mt-2">
+            <a
+              [href]="prepareDetailsUrl(anime)"
+              target="_blank"
+              class="inline-block text-center w-full bg-brand-primary text-white px-3 py-1 rounded hover:bg-brand-secondary transition-colors text-sm"
+            >
+              Details
+            </a>
           </div>
         </div>
       </div>
