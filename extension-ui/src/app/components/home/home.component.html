@@ -7,10 +7,14 @@
           [alt]="anime.title"
           class="h-full w-2/5 object-cover"
         />
-        <div class="p-3 w-3/5 flex flex-col">
+
+        <div class="p-4 w-3/5 flex flex-col text-sm">
           <h2 class="text-lg font-semibold text-text-primary">{{ anime.title }}</h2>
-          <p class="text-sm text-gray-500">📅 {{ anime.startDate }}</p>
-          <p class="text-sm text-gray-500">🎬 {{ anime.numEpisodes }} episodes</p>
+          <div class="text-gray-600 space-y-1">
+            <p><span class="font-medium text-gray-800">Start Date:</span> {{ anime.startDate }}</p>
+            <p><span class="font-medium text-gray-800">Episodes:</span> {{ anime.numEpisodes }}</p>
+            <p><span class="font-medium text-gray-800">Estimated End:</span> {{ getEstimatedEndDate(anime.startDate, anime.numEpisodes) }}</p>
+          </div>
         </div>
       </div>
     }

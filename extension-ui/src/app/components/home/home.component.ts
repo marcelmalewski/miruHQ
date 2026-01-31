@@ -17,4 +17,12 @@ export class HomeComponent {
       initialValue: [],
     },
   );
+
+  getEstimatedEndDate(startDate: string, numEpisodes: string): string {
+    const start = new Date(startDate);
+    const episodes = Number(numEpisodes);
+    // assuming 1 episode per week
+    const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000 * episodes);
+    return end.toISOString().split('T')[0]; // YYYY-MM-DD
+  }
 }
