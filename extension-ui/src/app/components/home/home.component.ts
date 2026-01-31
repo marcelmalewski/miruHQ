@@ -12,17 +12,24 @@ export class HomeComponent {
   private readonly animeService = inject(AnimeService);
 
   readonly animeList: Signal<Anime[]> = toSignal(
-    this.animeService.get({ ids: ['59978', '61211'] }),
+    this.animeService.get({
+      ids: ['59978', '61211', '60395'],
+    }),
     {
       initialValue: [],
     },
   );
 
-  getEstimatedEndDate(startDate: string, numEpisodes: string): string {
-    const start = new Date(startDate);
-    const episodes = Number(numEpisodes);
-    // assuming 1 episode per week
-    const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000 * episodes);
-    return end.toISOString().split('T')[0]; // YYYY-MM-DD
+  // TODO zweryfikować algorytm
+  calculateEstimatedEndDateWithDays(start: string, episodesNumber: string): string {
+    const startDate = new Date(start);
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    const end = new Date(startDate.getTime() + Number(episodesNumber) * oneWeek);
+    const diffDays = Math.ceil((end.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    return `${end.toISOString().split('T')[0]} (${diffDays} days)`;
+  }
+
+  prepareDetailsUrl(anime: Anime): string {
+    return `https://myanimelist.net/anime/${anime.id}`;
   }
 }
