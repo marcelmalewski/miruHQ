@@ -1,20 +1,18 @@
 <div class="screen-box-center">
   <div class="flex flex-col gap-5">
     @for (anime of animeList(); track anime.id) {
-      <div class="w-96 h-60 bg-white rounded-xl flex flex-row">
+      <div class="w-96 h-60 bg-white rounded-xl flex flex-row overflow-hidden">
         <img
           [src]="anime.mainPicture.medium"
           [alt]="anime.title"
-          class="h-full object-covers"
+          class="h-full w-2/5 object-cover"
         />
-
-        <div class="p-4">
-          <h2 class="text-lg font-semibold text-text-primary mb-1">{{ anime.title }}</h2>
-          <p class="text-sm text-gray-500 mb-1">📅 {{ anime.startDate }}</p>
+        <div class="p-3 w-3/5 flex flex-col">
+          <h2 class="text-lg font-semibold text-text-primary">{{ anime.title }}</h2>
+          <p class="text-sm text-gray-500">📅 {{ anime.startDate }}</p>
           <p class="text-sm text-gray-500">🎬 {{ anime.numEpisodes }} episodes</p>
         </div>
       </div>
     }
   </div>
 </div>
-
