@@ -38,4 +38,8 @@ export class HomeComponent {
     if (!text) return '';
     return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
   }
+
+  onAuthenticate() {
+    window.open('http://localhost:8080/api/authenticate', '_blank');
+  }
 }

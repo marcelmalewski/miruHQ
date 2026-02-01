@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: api
+mal:
+  client-id: ${CLIENT_ID}
+  client-secret: ${CLIENT_SECRET}

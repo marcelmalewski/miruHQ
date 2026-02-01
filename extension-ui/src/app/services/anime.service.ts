@@ -25,10 +25,10 @@ export interface AnimeSearchRequest {
 export class AnimeService {
   private readonly http = inject(HttpClient);
 
-  private readonly baseUrl = 'http://localhost:8080/api/anime';
+  private readonly baseUrl = 'http://localhost:8080/api';
 
   get(request: AnimeSearchRequest): Observable<Anime[]> {
-    const url = `${this.baseUrl}/search`;
+    const url = `${this.baseUrl}/anime/search`;
     return this.http.post<Anime[]>(url, request);
   }
 }
