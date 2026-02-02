@@ -1,38 +1,8 @@
 <main
   class="bg-[var(--bg)] text-[var(--primary)] h-screen w-screen flex items-center justify-center"
 >
-  <div class="text-center space-y-4">
-    <h2 class="text-5xl font-bold">Marcel Malewski</h2>
-
-    <div class="flex justify-center gap-6 text-2xl">
-      <a
-        href="https://www.linkedin.com/in/marcel-malewski"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-black hover:underline flex items-center gap-2"
-      >
-        <img ngSrc="../assets/linkedin.svg" alt="LinkedIn" width="32" height="32" class="w-8 h-8" />
-        LinkedIn
-      </a>
-
-      <a
-        href="https://github.com/marcelmalewski"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-black hover:underline flex items-center gap-2"
-      >
-        <img ngSrc="../assets/github.svg" alt="Github" width="32" height="32" class="w-8 h-8" />
-        GitHub
-      </a>
-    </div>
-
-    <a
-      href="mailto:marcelmalewski9@gmail.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="text-xl text-black hover:text-neutral-600"
-    >
-      marcelmalewski9&#64;gmail.com
-    </a>
-  </div>
+  <a target="_blank" [href]="prepareDetailsUrl()"
+     class="text-center text-[var(--primary)] px-3 py-1 rounded text-3xl border-4 border-[var(--primary)] font-bold">
+    Start Authentication
+  </a>
 </main>
