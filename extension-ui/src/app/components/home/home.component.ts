@@ -40,6 +40,6 @@ export class HomeComponent {
   }
 
   onAuthenticate() {
-    window.open('http://localhost:8080/api/authenticate', '_blank');
+    window.open('http://localhost:4200', '_blank');
   }
 }
