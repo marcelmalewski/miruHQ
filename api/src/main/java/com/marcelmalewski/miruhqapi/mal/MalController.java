@@ -9,13 +9,13 @@ import java.util.Objects;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+// TODO better names and better endpoints names
 @RestController
 public class MalController {
 
@@ -58,11 +58,17 @@ public class MalController {
     }
 
     @GetMapping("/oauth/mal/callback")
-    public ResponseEntity<String> callback(@RequestParam String code, @RequestParam String state) {
+    public void callback(
+        @RequestParam String code,
+        @RequestParam String state,
+        HttpServletResponse response
+    ) throws IOException {
         if (!Objects.equals(state, currentState)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid state!");
+            response.sendError(HttpStatus.FORBIDDEN.value(), "Invalid state");
+            return;
         }
 
-        return ResponseEntity.ok("OAuth successful. Authorization code: " + code);
+        // TODO (next step): exchange code for token and store it
+        response.sendRedirect("http://localhost:4200/oauth-success");
     }
 }
