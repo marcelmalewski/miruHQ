@@ -5,23 +5,28 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 // TODO better names and better endpoints names
 @RestController
 public class MalController {
-
     private String currentState;
     private String currentCodeChallenge;
-
     private final String redirectUri = "http://localhost:8080/oauth/mal/callback";
 
     @Value("${mal.client-id}")
@@ -35,9 +40,15 @@ public class MalController {
         this.malService = malService;
     }
 
+    @GetMapping("/api/user/@me")
+    public String getUserInfo() {
+        malService.getUserInfo();
+        return null;
+    }
+
     @PostMapping("/api/anime/search")
     public List<AnimeDto> searchAnime(@RequestBody AnimeSearchRequest request) {
-        return malService.search(request);
+        return malService.searchAnime(request);
     }
 
     @GetMapping("/api/authenticate")
@@ -68,7 +79,31 @@ public class MalController {
             return;
         }
 
-        // TODO (next step): exchange code for token and store it
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        String body = "grant_type=authorization_code" +
+            "&code=" + code +
+            "&client_id=" + clientId +
+            "&client_secret=" + clientSecret +
+            "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) +
+            "&code_verifier=" + currentCodeChallenge;
+        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+
+        RestTemplate rest = new RestTemplate();
+        ResponseEntity<Map> tokenResponse = rest.exchange(
+            "https://myanimelist.net/v1/oauth2/token",
+            HttpMethod.POST,
+            entity,
+            Map.class
+        );
+
+        // TODO in respo body there is refresh_token
+        Map<String, Object> respBody = tokenResponse.getBody();
+        if (respBody != null && respBody.containsKey("access_token")) {
+            String accessToken = (String) respBody.get("access_token");
+            malService.setAccessToken(accessToken); // store in your service
+        }
+
         response.sendRedirect("http://localhost:4200/oauth-success");
     }
 }

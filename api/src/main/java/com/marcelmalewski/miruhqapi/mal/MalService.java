@@ -7,8 +7,10 @@ import org.springframework.web.client.RestClient;
 
 @Service
 public class MalService {
-    private final RestClient restClient;
 
+    private String accessToken;
+
+    private final RestClient restClient;
     private final AnimeDtoMapper animeDtoMapper;
 
     public MalService(RestClient restClient, AnimeDtoMapper animeDtoMapper) {
@@ -16,7 +18,18 @@ public class MalService {
         this.animeDtoMapper = animeDtoMapper;
     }
 
-    public List<AnimeDto> search(AnimeSearchRequest request) {
+    public void getUserInfo() {
+        restClient
+            .get()
+            .uri(uriBuilder -> uriBuilder
+                .path("/anime/{id}")
+                .build()
+            )
+            .retrieve()
+            .body(AnimeMal.class);
+    }
+
+    public List<AnimeDto> searchAnime(AnimeSearchRequest request) {
         List<AnimeDto> animeDtos = new ArrayList<>();
         request.ids().forEach(id -> {
                 AnimeMal response = restClient
@@ -36,5 +49,13 @@ public class MalService {
         );
 
         return animeDtos;
+    }
+
+    public void setAccessToken(String token) {
+        this.accessToken = token;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
     }
 }
