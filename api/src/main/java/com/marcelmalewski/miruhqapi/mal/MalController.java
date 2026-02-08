@@ -40,10 +40,9 @@ public class MalController {
         this.malService = malService;
     }
 
-    @GetMapping("/api/user/@me")
-    public String getUserInfo() {
-        malService.getUserInfo();
-        return null;
+    @GetMapping("/api/users/@me")
+    public UserInfoDto getUserInfo() {
+        return malService.getUserInfo();
     }
 
     @PostMapping("/api/anime/search")
@@ -101,7 +100,8 @@ public class MalController {
         Map<String, Object> respBody = tokenResponse.getBody();
         if (respBody != null && respBody.containsKey("access_token")) {
             String accessToken = (String) respBody.get("access_token");
-            malService.setAccessToken(accessToken); // store in your service
+            malService.setAccessToken(accessToken);
+            System.out.println("Access Token: " + accessToken);
         }
 
         response.sendRedirect("http://localhost:4200/oauth-success");

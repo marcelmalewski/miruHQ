@@ -1,34 +1,23 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface Anime {
-  id: string;
-  title: string;
-  startDate: string;
-  numEpisodes: string;
-  mainPicture: MainPicture;
-}
-
-export interface MainPicture {
-  medium: string;
-  large: string;
-}
-
-export interface AnimeSearchRequest {
-  ids: string[];
-}
+import { Anime, AnimeSearchRequest, UserInfo } from '../spec/mal.info';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AnimeService {
+export class MalService {
   private readonly http = inject(HttpClient);
 
   private readonly baseUrl = 'http://localhost:8080/api';
 
-  get(request: AnimeSearchRequest): Observable<Anime[]> {
+  getAnime(request: AnimeSearchRequest): Observable<Anime[]> {
     const url = `${this.baseUrl}/anime/search`;
     return this.http.post<Anime[]>(url, request);
+  }
+
+  getUserInfo(): Observable<UserInfo> {
+    const url = `${this.baseUrl}/users/@me`;
+    return this.http.get<UserInfo>(url);
   }
 }

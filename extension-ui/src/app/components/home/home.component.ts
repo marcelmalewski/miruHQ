@@ -1,7 +1,8 @@
 import { Component, inject, Signal } from '@angular/core';
-import { Anime, AnimeService } from '../../services/anime.service';
+import { MalService } from '../../services/mal.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgOptimizedImage } from '@angular/common';
+import { Anime, UserInfo } from '../../spec/mal.info';
 
 @Component({
   selector: 'home',
@@ -9,15 +10,15 @@ import { NgOptimizedImage } from '@angular/common';
   imports: [NgOptimizedImage],
 })
 export class HomeComponent {
-  private readonly animeService = inject(AnimeService);
+  private readonly malService = inject(MalService);
+
+  readonly userInfo: Signal<UserInfo | null> = toSignal(this.malService.getUserInfo(), {
+    initialValue: null,
+  });
 
   readonly animeList: Signal<Anime[]> = toSignal(
-    this.animeService.get({
-      ids: ['59978', '61211', '60395'],
-    }),
-    {
-      initialValue: [],
-    },
+    this.malService.getAnime({ ids: ['59978', '61211', '60395'] }),
+    { initialValue: [] },
   );
 
   // TODO zweryfikować algorytm

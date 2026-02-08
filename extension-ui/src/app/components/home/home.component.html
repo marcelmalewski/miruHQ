@@ -1,5 +1,10 @@
 <div class="screen-box-center">
   <div class="flex flex-row gap-10">
+    @if (userInfo()) {
+      <div>
+        {{ userInfo()?.name }}
+      </div>
+    }
     <div class="flex justify-center items-center">
       <button (click)="onAuthenticate()"
               class="text-2xl text-brand-primary font-medium hover:underline transition">
