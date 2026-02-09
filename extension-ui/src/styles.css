@@ -11,8 +11,12 @@
 }
 
 @layer components {
-  .screen-box-center {
-    @apply flex h-screen w-screen flex-col items-center justify-center bg-bg-primary text-text-primary;
+  .screen-box {
+    @apply flex h-screen w-screen bg-bg-primary text-text-primary;
+  }
+  .dash-animation {
+    @apply cursor-pointer after:block after:h-0.5 after:w-0 after:bg-brand-primary after:duration-200
+    hover:after:w-full;
   }
   .screen-box-between {
     @apply flex h-screen w-screen flex-col justify-between bg-bg-primary text-text-primary;

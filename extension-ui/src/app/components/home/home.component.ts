@@ -12,12 +12,12 @@ import { Anime, UserInfo } from '../../spec/mal.info';
 export class HomeComponent {
   private readonly malService = inject(MalService);
 
-  readonly userInfo: Signal<UserInfo | null> = toSignal(this.malService.getUserInfo(), {
+  userInfo: Signal<UserInfo | null> = toSignal(this.malService.getUserInfo(), {
     initialValue: null,
   });
 
-  readonly animeList: Signal<Anime[]> = toSignal(
-    this.malService.getAnime({ ids: ['59978', '61211', '60395'] }),
+  animeList: Signal<Anime[]> = toSignal(
+    this.malService.searchAnime({ ids: ['59978', '61211', '60395'] }),
     { initialValue: [] },
   );
 
@@ -30,7 +30,11 @@ export class HomeComponent {
     return `${end.toISOString().split('T')[0]} (${diffDays} days)`;
   }
 
-  prepareDetailsUrl(anime: Anime): string {
+  prepareUserInfoDetailsUrl(userInfo: UserInfo) {
+    return `https://myanimelist.net/profile/${userInfo.name}`;
+  }
+
+  prepareAnimeDetailsUrl(anime: Anime): string {
     return `https://myanimelist.net/anime/${anime.id}`;
   }
 
