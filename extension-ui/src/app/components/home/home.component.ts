@@ -16,10 +16,7 @@ export class HomeComponent {
     initialValue: null,
   });
 
-  animeList: Signal<Anime[]> = toSignal(
-    this.malService.searchAnime({ ids: ['59978', '61211', '60395'] }),
-    { initialValue: [] },
-  );
+  animeList: Signal<Anime[]> = toSignal(this.malService.findUserAnimeList(), { initialValue: [] });
 
   // TODO zweryfikować algorytm
   calculateEstimatedEndDateWithDays(start: string, episodesNumber: string): string {

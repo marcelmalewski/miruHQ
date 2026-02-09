@@ -11,10 +11,6 @@ export interface MainPicture {
   large: string;
 }
 
-export interface AnimeSearchRequest {
-  ids: string[];
-}
-
 export interface UserInfo {
   id: string;
   name: string;

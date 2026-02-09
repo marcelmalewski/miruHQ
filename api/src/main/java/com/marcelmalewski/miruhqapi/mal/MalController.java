@@ -1,12 +1,12 @@
 package com.marcelmalewski.miruhqapi.mal;
 
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
-import com.marcelmalewski.miruhqapi.mal.dto.UserInfoDto;
+import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoRest;
+import com.marcelmalewski.miruhqapi.mal.dto.UserInfoDtoRest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -43,14 +42,13 @@ public class MalController {
     }
 
     @GetMapping("/api/users/@me")
-    public UserInfoDto getUserInfo() {
+    public UserInfoDtoRest getUserInfo() {
         return malService.getUserInfo();
     }
 
-    @PostMapping("/api/anime/search")
-    public List<AnimeDto> searchAnime() {
-        var result = malService.searchAnime();
-        return Collections.emptyList();
+    @GetMapping("/api/users/@me/anime-list")
+    public List<AnimeDto> findUserAnimeList() {
+        return malService.findUserAnimeList();
     }
 
     @GetMapping("/api/authenticate")
