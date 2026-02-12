@@ -62,5 +62,30 @@
       }
     </div>
   </div>
+  <div class="flex justify-center gap-2 mt-4">
+    <button
+      class="px-3 py-1 rounded border text-sm"
+      [class.opacity-50]="currentPage === 1"
+      [disabled]="currentPage === 1"
+      (click)="loadPage(currentPage - 1)">
+      Prev
+    </button>
+
+    @for (page of [1, 2, 3, 4, 5]; track page) {
+      <button
+        class="px-3 py-1 rounded border text-sm"
+        [class.bg-brand-primary]="page === currentPage"
+        [class.text-white]="page === currentPage"
+        (click)="loadPage(page)">
+        {{ page }}
+      </button>
+    }
+
+    <button
+      class="px-3 py-1 rounded border text-sm"
+      (click)="loadPage(currentPage + 1)">
+      Next
+    </button>
+  </div>
 </div>
 

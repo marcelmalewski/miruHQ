@@ -1,4 +1,4 @@
-import { Component, inject, Signal } from '@angular/core';
+import { Component, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
 import { MalService } from '../../services/mal.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgOptimizedImage } from '@angular/common';
@@ -9,14 +9,33 @@ import { Anime, UserInfo } from '../../spec/mal.info';
   templateUrl: './home.component.html',
   imports: [NgOptimizedImage],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private readonly malService = inject(MalService);
+
+  limit = 10;
+  currentPage = 1;
 
   userInfo: Signal<UserInfo | null> = toSignal(this.malService.getUserInfo(), {
     initialValue: null,
   });
 
-  animeList: Signal<Anime[]> = toSignal(this.malService.findUserAnimeList(), { initialValue: [] });
+  // animeList: WritableSignal<Anime[]> = toSignal(this.malService.findUserAnimeList(), {
+  //   initialValue: [],
+  // });
+  animeList: WritableSignal<Anime[]> = signal<Anime[]>([]);
+
+  ngOnInit(): void {
+    this.loadPage(1);
+  }
+
+  loadPage(page: number) {
+    this.currentPage = page;
+    const offset = (page - 1) * this.limit;
+
+    this.malService
+      .findUserAnimeList(this.limit, offset)
+      .subscribe((data) => this.animeList.set(data));
+  }
 
   // TODO zweryfikować algorytm
   calculateEstimatedEndDateWithDays(start: string, episodesNumber: string): string {
