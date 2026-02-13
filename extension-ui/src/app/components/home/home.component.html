@@ -1,6 +1,6 @@
 <div class="screen-box flex gap-5">
   @if (userInfo()) {
-    <div class="h-full w-56 p-5 text-brand-primary flex flex-col gap-4 text-lg">
+    <div class="h-full w-56 p-5 text-brand-primary flex flex-col gap-5 text-lg">
       <p class="text-3xl font-bold">{{ userInfo()!.name }}</p>
       <div class="flex flex-col gap-1">
         <a [href]="prepareUserInfoDetailsUrl(userInfo()!)" target="_blank" rel="noopener noreferrer"
@@ -22,8 +22,8 @@
   <!--    </div>-->
 
   <div class="flex-grow flex justify-center items-center h-full">
-    <div class="flex flex-col h-full">
-      <div class="flex flex-grow flex-col gap-5 my-5 overflow-y-auto p-2">
+    <div class="flex flex-col h-full gap-5 p-5">
+      <div class="flex flex-grow flex-col gap-5 overflow-y-auto p-2">
         @for (anime of animeList(); track anime.id) {
           <div
             class="w-96 min-h-60 h-60 bg-white rounded-xl flex flex-row overflow-hidden shadow-lg">
@@ -62,7 +62,7 @@
           </div>
         }
       </div>
-      <div class="flex justify-center gap-2 py-4 border-t">
+      <div class="flex justify-center gap-2 border-t">
         <button
           class="px-3 py-1 rounded border text-sm disabled:opacity-50"
           [disabled]="currentPage === 1"
@@ -87,8 +87,6 @@
         </button>
       </div>
     </div>
-
-
   </div>
 </div>
 
