@@ -22,8 +22,8 @@
   <!--    </div>-->
 
     <div class="flex flex-col flex-grow gap-5 p-5">
-      <div
-        class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,minmax(24rem,1fr))]">
+        <div class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,24rem)]
+        place-content-start">
         @for (anime of animeList(); track anime.id) {
           <div
             class="w-96 min-h-60 h-60 bg-white rounded-xl flex flex-row overflow-hidden shadow-lg">
@@ -62,7 +62,7 @@
           </div>
         }
       </div>
-      <div class="flex justify-center gap-2 border-t">
+      <div class="flex justify-center gap-5 border-t">
         <button
           class="px-3 py-1 rounded border text-sm disabled:opacity-50"
           [disabled]="currentPage === 1"
