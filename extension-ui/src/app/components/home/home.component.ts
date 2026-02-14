@@ -14,14 +14,13 @@ export class HomeComponent implements OnInit {
 
   limit = 10;
   currentPage = 1;
+  pageSizeOptions = [10, 25, 50];
+  hasNextPage: WritableSignal<boolean> = signal(true);
 
   userInfo: Signal<UserInfo | null> = toSignal(this.malService.getUserInfo(), {
     initialValue: null,
   });
 
-  // animeList: WritableSignal<Anime[]> = toSignal(this.malService.findUserAnimeList(), {
-  //   initialValue: [],
-  // });
   animeList: WritableSignal<Anime[]> = signal<Anime[]>([]);
 
   ngOnInit(): void {
@@ -32,9 +31,10 @@ export class HomeComponent implements OnInit {
     this.currentPage = page;
     const offset = (page - 1) * this.limit;
 
-    this.malService
-      .findUserAnimeList(this.limit, offset)
-      .subscribe((data) => this.animeList.set(data));
+    this.malService.findUserAnimeList(this.limit, offset).subscribe((data) => {
+      this.animeList.set(data);
+      this.hasNextPage.set(data.length === this.limit);
+    });
   }
 
   // TODO zweryfikować algorytm
