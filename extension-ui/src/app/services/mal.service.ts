@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Anime, UserInfo } from '../spec/mal.info';
+import { Anime, UserInfo } from '../spec/mal-spec';
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +11,8 @@ export class MalService {
 
   private readonly baseUrl = 'http://localhost:8080/api';
 
-  findUserAnimeList(): Observable<Anime[]> {
-    const url = `${this.baseUrl}/users/@me/anime-list`;
+  findUserAnimeList(pageSize: number, offset: number, statusOption: string): Observable<Anime[]> {
+    const url = `${this.baseUrl}/users/@me/anime-list?limit=${pageSize}&offset=${offset}&status=${statusOption}`;
     return this.http.get<Anime[]>(url);
   }
 

@@ -2,7 +2,17 @@ import { Component, inject, OnInit, signal, Signal, WritableSignal } from '@angu
 import { MalService } from '../../services/mal.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgOptimizedImage } from '@angular/common';
-import { Anime, UserInfo } from '../../spec/mal.info';
+import { Anime, UserInfo } from '../../spec/mal-spec';
+import {
+  PrettyStatus,
+  PrettyStatuses,
+  PrettyStatusToStatus,
+  SearchAllAnimeRequest,
+  SearchAnimeRequest,
+  SearchMode,
+  SearchUserAnimeRequest,
+  Statuses,
+} from '../../spec/search-anime-spec';
 
 @Component({
   selector: 'home',
@@ -12,9 +22,16 @@ import { Anime, UserInfo } from '../../spec/mal.info';
 export class HomeComponent implements OnInit {
   private readonly malService = inject(MalService);
 
-  limit = 10;
-  currentPage = 1;
+  prettyStatuses: PrettyStatus[] = Object.values(PrettyStatuses);
   pageSizeOptions = [10, 25, 50];
+  currentMode = SearchMode.USER_ANIME;
+
+  searchAnimeRequest: SearchAnimeRequest = {
+    status: Statuses.PLAN_TO_WATCH,
+    page: 1,
+    pageSize: this.pageSizeOptions[0],
+  };
+
   hasNextPage: WritableSignal<boolean> = signal(true);
 
   userInfo: Signal<UserInfo | null> = toSignal(this.malService.getUserInfo(), {
@@ -24,20 +41,53 @@ export class HomeComponent implements OnInit {
   animeList: WritableSignal<Anime[]> = signal<Anime[]>([]);
 
   ngOnInit(): void {
-    this.loadPage(1);
+    this.loadPage();
   }
 
-  loadPage(page: number) {
-    this.currentPage = page;
-    const offset = (page - 1) * this.limit;
-
-    this.malService.findUserAnimeList(this.limit, offset).subscribe((data) => {
-      this.animeList.set(data);
-      this.hasNextPage.set(data.length === this.limit);
-    });
+  onPageChange(page: number) {
+    this.searchAnimeRequest.page = page;
+    this.loadPage();
   }
 
-  // TODO zweryfikować algorytm
+  onPageSizeChange(newLimit: number) {
+    this.searchAnimeRequest.pageSize = newLimit;
+    this.searchAnimeRequest.page = 1;
+    this.loadPage();
+  }
+
+  onStatusChange(status: PrettyStatus) {
+    this.searchAnimeRequest.status = PrettyStatusToStatus[status];
+    this.loadPage();
+  }
+
+  loadPage() {
+    const offset = (this.searchAnimeRequest.page - 1) * this.searchAnimeRequest.pageSize;
+
+    if (this.currentMode === SearchMode.USER_ANIME) {
+      this.loadUserAnimeList(this.searchAnimeRequest as SearchUserAnimeRequest, offset);
+    } else {
+      this.loadAllAnimeList(this.searchAnimeRequest as SearchAllAnimeRequest, offset);
+    }
+  }
+
+  loadUserAnimeList(searchAnimeRequest: SearchUserAnimeRequest, offset: number) {
+    this.malService
+      .findUserAnimeList(searchAnimeRequest.pageSize, offset, searchAnimeRequest.status)
+      .subscribe((data) => {
+        this.animeList.set(data);
+        this.hasNextPage.set(data.length === this.searchAnimeRequest.pageSize);
+      });
+  }
+
+  loadAllAnimeList(searchAnimeRequest: SearchAllAnimeRequest, offset: number) {
+    console.log(searchAnimeRequest);
+  }
+
+  onAuthenticate() {
+    window.open('http://localhost:4200', '_blank');
+  }
+
+  // TODO idzie na backend
   calculateEstimatedEndDateWithDays(start: string, episodesNumber: string): string {
     const startDate = new Date(start);
     const oneWeek = 7 * 24 * 60 * 60 * 1000;
@@ -58,9 +108,5 @@ export class HomeComponent implements OnInit {
     const maxLength = 30;
     if (!text) return '';
     return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
-  }
-
-  onAuthenticate() {
-    window.open('http://localhost:4200', '_blank');
   }
 }

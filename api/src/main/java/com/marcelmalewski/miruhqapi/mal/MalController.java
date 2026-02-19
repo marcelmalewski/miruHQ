@@ -47,8 +47,9 @@ public class MalController {
     }
 
     @GetMapping("/api/users/@me/anime-list")
-    public List<AnimeDto> findUserAnimeList() {
-        return malService.findUserAnimeList();
+    public List<AnimeDto> findUserAnimeList(
+        @RequestParam Integer limit, @RequestParam Integer offset, @RequestParam String status) {
+        return malService.findUserAnimeList(limit, offset, status);
     }
 
     @GetMapping("/api/authenticate")

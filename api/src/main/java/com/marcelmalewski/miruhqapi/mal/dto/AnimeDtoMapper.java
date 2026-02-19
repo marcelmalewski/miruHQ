@@ -1,7 +1,5 @@
-package com.marcelmalewski.miruhqapi.mal;
+package com.marcelmalewski.miruhqapi.mal.dto;
 
-import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoRest;
-import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
