@@ -1,18 +1,31 @@
-import { Component, inject, OnInit, signal, Signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  Signal,
+  WritableSignal,
+} from '@angular/core';
 import { MalService } from '../../services/mal.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NgOptimizedImage } from '@angular/common';
 import { Anime, UserInfo } from '../../spec/mal-spec';
 import {
-  PrettyStatus,
-  PrettyStatuses,
-  PrettyStatusToStatus,
+  AnimeSortFields,
+  AnimeStatuses,
+  PrettyAnimeSortField,
+  PrettyAnimeSortFields,
+  PrettyAnimeSortFieldToSortField,
+  PrettyAnimeStatus,
+  PrettyAnimeStatuses,
+  PrettyAnimeStatusToStatus,
   SearchAllAnimeRequest,
   SearchAnimeRequest,
   SearchMode,
   SearchUserAnimeRequest,
-  Statuses,
 } from '../../spec/search-anime-spec';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'home',
@@ -21,16 +34,23 @@ import {
 })
 export class HomeComponent implements OnInit {
   private readonly malService = inject(MalService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  prettyStatuses: PrettyStatus[] = Object.values(PrettyStatuses);
+  prettyStatuses: PrettyAnimeStatus[] = Object.values(PrettyAnimeStatuses);
+  prettySortFields: PrettyAnimeSortField[] = Object.values(PrettyAnimeSortFields);
   pageSizeOptions = [10, 25, 50];
-  currentMode = SearchMode.USER_ANIME;
 
+  currentMode: string = SearchMode.USER_ANIME;
   searchAnimeRequest: SearchAnimeRequest = {
-    status: Statuses.PLAN_TO_WATCH,
+    status: AnimeStatuses.PLAN_TO_WATCH,
+    sortField: AnimeSortFields.ANIME_START_DATE,
     page: 1,
     pageSize: this.pageSizeOptions[0],
   };
+
+  private readonly searchTitleInput$ = new Subject<string>();
+
+  protected readonly SearchMode = SearchMode;
 
   hasNextPage: WritableSignal<boolean> = signal(true);
 
@@ -42,6 +62,54 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPage();
+    this.searchTitleInput$
+      .pipe(takeUntilDestroyed(this.destroyRef), debounceTime(300), distinctUntilChanged())
+      .subscribe((titleInput) => {
+        this.searchByTitle(titleInput);
+      });
+  }
+
+  onTitleInputChange(titleInput: string) {
+    this.searchTitleInput$.next(titleInput);
+  }
+
+  private searchByTitle(titleInput: string) {
+    if (titleInput.length < 3) {
+      this.animeList.set([]);
+      this.hasNextPage.set(false);
+      return;
+    }
+    this.searchAnimeRequest.title = titleInput;
+    this.loadPage();
+  }
+
+  onModeKeyDown(event: KeyboardEvent, mode: string) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.switchMode(mode);
+    }
+  }
+
+  switchMode(mode: string) {
+    if (this.currentMode === mode) return;
+    this.currentMode = mode;
+    if (this.currentMode === SearchMode.USER_ANIME) {
+      this.searchAnimeRequest = {
+        status: AnimeStatuses.PLAN_TO_WATCH,
+        sortField: AnimeSortFields.ANIME_START_DATE,
+        page: 1,
+        pageSize: this.pageSizeOptions[0],
+      };
+      this.loadPage();
+    } else {
+      this.searchAnimeRequest = {
+        title: '',
+        page: 1,
+        pageSize: this.pageSizeOptions[0],
+      };
+      this.animeList.set([]);
+      this.hasNextPage.set(false);
+    }
   }
 
   onPageChange(page: number) {
@@ -55,8 +123,13 @@ export class HomeComponent implements OnInit {
     this.loadPage();
   }
 
-  onStatusChange(status: PrettyStatus) {
-    this.searchAnimeRequest.status = PrettyStatusToStatus[status];
+  onStatusChange(prettyStatus: PrettyAnimeStatus) {
+    this.searchAnimeRequest.status = PrettyAnimeStatusToStatus[prettyStatus];
+    this.loadPage();
+  }
+
+  onSortFieldChange(prettySortField: PrettyAnimeSortField) {
+    this.searchAnimeRequest.sortField = PrettyAnimeSortFieldToSortField[prettySortField];
     this.loadPage();
   }
 
@@ -72,7 +145,12 @@ export class HomeComponent implements OnInit {
 
   loadUserAnimeList(searchAnimeRequest: SearchUserAnimeRequest, offset: number) {
     this.malService
-      .findUserAnimeList(searchAnimeRequest.pageSize, offset, searchAnimeRequest.status)
+      .findUserAnimeList(
+        searchAnimeRequest.pageSize,
+        offset,
+        searchAnimeRequest.status,
+        searchAnimeRequest.sortField,
+      )
       .subscribe((data) => {
         this.animeList.set(data);
         this.hasNextPage.set(data.length === this.searchAnimeRequest.pageSize);
@@ -80,7 +158,12 @@ export class HomeComponent implements OnInit {
   }
 
   loadAllAnimeList(searchAnimeRequest: SearchAllAnimeRequest, offset: number) {
-    console.log(searchAnimeRequest);
+    this.malService
+      .findAnime(searchAnimeRequest.pageSize, offset, searchAnimeRequest.title)
+      .subscribe((data) => {
+        this.animeList.set(data);
+        this.hasNextPage.set(data.length === this.searchAnimeRequest.pageSize);
+      });
   }
 
   onAuthenticate() {

@@ -27,15 +27,51 @@
 
   <div class="flex flex-col flex-grow gap-5 p-5">
     <div class="flex justify-center gap-5 text-xl">
-      <select
-        class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
-        (change)="onStatusChange($any($event.target).value)"
+      @if (currentMode === SearchMode.USER_ANIME) {
+        <select
+          class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
+          (change)="onStatusChange($any($event.target).value)"
+        >
+          @for (status of prettyStatuses; track status) {
+            <option>{{ status }}</option>
+          }
+        </select>
+        <select
+          class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
+          (change)="onSortFieldChange($any($event.target).value)"
+        >
+          @for (sortField of prettySortFields; track sortField) {
+            <option>{{ sortField }}</option>
+          }
+        </select>
+      } @else {
+        <input
+          type="text"
+          class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
+          (input)="onTitleInputChange($any($event.target).value)"
+        />
+      }
+
+      <button
+        type="button"
+        class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
+        [class.opacity-40]="currentMode !== SearchMode.USER_ANIME"
+        [class.border-black]="currentMode === SearchMode.USER_ANIME"
+        (click)="switchMode(SearchMode.USER_ANIME)"
+        (keydown)="onModeKeyDown($event, SearchMode.USER_ANIME)"
       >
-        @for (status of prettyStatuses; track status) {
-          <option>{{ status }}</option>
-        }
-      </select>
-      <div class="px-3 py-1 border-2 rounded border-black text-black">My anime</div>
+        My anime
+      </button>
+      <button
+        type="button"
+        class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
+        [class.opacity-40]="currentMode !== SearchMode.ALL_ANIME"
+        [class.border-black]="currentMode === SearchMode.ALL_ANIME"
+        (click)="switchMode(SearchMode.ALL_ANIME)"
+        (keydown)="onModeKeyDown($event, SearchMode.ALL_ANIME)"
+      >
+        All anime
+      </button>
     </div>
     <div
       class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,24rem)] place-content-start"
@@ -112,3 +148,6 @@
     </div>
   </div>
 </div>
+
+<!--      <div class="px-3 py-1 border-2 rounded border-black text-black">My anime</div>-->
+<!--      <div class="px-3 py-1 border-2 rounded border-black text-black">All anime</div>-->

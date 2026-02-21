@@ -11,8 +11,18 @@ export class MalService {
 
   private readonly baseUrl = 'http://localhost:8080/api';
 
-  findUserAnimeList(pageSize: number, offset: number, statusOption: string): Observable<Anime[]> {
-    const url = `${this.baseUrl}/users/@me/anime-list?limit=${pageSize}&offset=${offset}&status=${statusOption}`;
+  findAnime(pageSize: number, offset: number, title: string): Observable<Anime[]> {
+    const url = `${this.baseUrl}/anime?limit=${pageSize}&offset=${offset}&title=${title}`;
+    return this.http.get<Anime[]>(url);
+  }
+
+  findUserAnimeList(
+    pageSize: number,
+    offset: number,
+    statusOption: string,
+    sortField: string,
+  ): Observable<Anime[]> {
+    const url = `${this.baseUrl}/users/@me/anime-list?limit=${pageSize}&offset=${offset}&status=${statusOption}&sortField=${sortField}`;
     return this.http.get<Anime[]>(url);
   }
 

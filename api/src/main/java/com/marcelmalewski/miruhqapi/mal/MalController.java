@@ -1,7 +1,6 @@
 package com.marcelmalewski.miruhqapi.mal;
 
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
-import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dto.UserInfoDtoRest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 // TODO better names and better endpoints names
 @RestController
 public class MalController {
+
     private String currentState;
     private String currentCodeChallenge;
     private final String redirectUri = "http://localhost:8080/oauth/mal/callback";
@@ -48,8 +48,15 @@ public class MalController {
 
     @GetMapping("/api/users/@me/anime-list")
     public List<AnimeDto> findUserAnimeList(
-        @RequestParam Integer limit, @RequestParam Integer offset, @RequestParam String status) {
-        return malService.findUserAnimeList(limit, offset, status);
+        @RequestParam Integer limit, @RequestParam Integer offset, @RequestParam String status,
+        @RequestParam String sortField) {
+        return malService.findUserAnimeList(limit, offset, status, sortField);
+    }
+
+    @GetMapping("/api/anime")
+    public List<AnimeDto> findAnime(
+        @RequestParam Integer limit, @RequestParam Integer offset, @RequestParam String title) {
+        return malService.findAnime(limit, offset, title);
     }
 
     @GetMapping("/api/authenticate")
