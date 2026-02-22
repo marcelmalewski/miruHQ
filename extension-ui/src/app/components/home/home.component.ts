@@ -178,13 +178,34 @@ export class HomeComponent implements OnInit {
     window.open('http://localhost:4200', '_blank');
   }
 
-  // TODO idzie na backend
-  calculateEstimatedEndDateWithDays(start: string, episodesNumber: string): string {
-    const startDate = new Date(start);
-    const oneWeek = 7 * 24 * 60 * 60 * 1000;
-    const end = new Date(startDate.getTime() + Number(episodesNumber) * oneWeek);
-    const diffDays = Math.ceil((end.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    return `${end.toISOString().split('T')[0]} (${diffDays} days)`;
+  calculateEstimatedEndDateWithDays(startDate: string, numEpisodes: number): string {
+    const startDateElements = startDate.split('-');
+    if (startDateElements.length < 3 || numEpisodes === 0) {
+      return 'Unknown';
+    }
+
+    const start = new Date(`${startDate}T00:00:00Z`);
+    if (Number.isNaN(start.getTime())) {
+      return 'Invalid date';
+    }
+
+    const totalDays = numEpisodes * 7;
+    const end = new Date(start);
+    end.setUTCDate(end.getUTCDate() + totalDays);
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    const diffMs = end.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    const endDateStr = end.toISOString().slice(0, 10);
+
+    if (diffDays < 0) {
+      return `${endDateStr} (ended ${Math.abs(diffDays)} days ago)`;
+    }
+
+    return `${endDateStr} (${diffDays} days remaining)`;
   }
 
   preparePrincipalInfoDetailsUrl(principalInfo: PrincipalInfo) {
