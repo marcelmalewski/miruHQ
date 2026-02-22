@@ -73,53 +73,63 @@
         All anime
       </button>
     </div>
-    <div
-      class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,24rem)] place-content-start"
-    >
-      @for (anime of animeList(); track anime.id) {
-        <div class="w-96 min-h-60 h-60 bg-white rounded-xl flex flex-row overflow-hidden shadow-lg">
-          <img
-            ngSrc="{{ anime.mainPicture.medium }}"
-            [alt]="anime.title"
-            width="160"
-            height="240"
-            class="h-full w-2/5 object-cover"
-          />
+    @if (titleInputTooShort()) {
+      <div class="flex-grow flex justify-start items-center flex-col gap-5">
+        <div class="mt-5 px-3 py-1 border-2 border-red-500 bg-red-50 text-red-700 text-xl">
+          Search term must be at least 3 characters long
+        </div>
+      </div>
+    } @else {
+      <div
+        class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,24rem)] place-content-start"
+      >
+        @for (anime of animeList(); track anime.id) {
+          <div
+            class="w-96 min-h-60 h-60 bg-white rounded-xl flex flex-row overflow-hidden shadow-lg"
+          >
+            <img
+              ngSrc="{{ anime.mainPicture.medium }}"
+              [alt]="anime.title"
+              width="160"
+              height="240"
+              class="h-full w-2/5 object-cover"
+            />
 
-          <div class="p-5 w-3/5 flex flex-col justify-between text-sm">
-            <div>
-              <h2 class="text-lg font-semibold text-text-primary mb-2">
-                {{ truncate(anime.title) }}
-              </h2>
-              <div class="text-gray-600 space-y-1">
-                <p>
-                  <span class="font-medium text-gray-800">Aired On:</span> {{ anime.startDate }}
-                </p>
-                <p>
-                  <span class="font-medium text-gray-800">Total Episodes:</span>
-                  {{ anime.numEpisodes }}
-                </p>
-                <p>
-                  <span class="font-medium text-gray-800">Expected Finish:</span>
-                  {{ calculateEstimatedEndDateWithDays(anime.startDate, anime.numEpisodes) }}
-                </p>
+            <div class="p-5 w-3/5 flex flex-col justify-between text-sm">
+              <div>
+                <h2 class="text-lg font-semibold text-text-primary mb-2">
+                  {{ truncate(anime.title) }}
+                </h2>
+                <div class="text-gray-600 space-y-1">
+                  <p>
+                    <span class="font-medium text-gray-800">Aired On:</span> {{ anime.startDate }}
+                  </p>
+                  <p>
+                    <span class="font-medium text-gray-800">Total Episodes:</span>
+                    {{ anime.numEpisodes }}
+                  </p>
+                  <p>
+                    <span class="font-medium text-gray-800">Expected Finish:</span>
+                    {{ calculateEstimatedEndDateWithDays(anime.startDate, anime.numEpisodes) }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <a
+                  [href]="prepareAnimeDetailsUrl(anime)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-block text-center w-full bg-brand-primary text-white px-3 py-1 rounded hover:bg-brand-secondary transition-colors text-sm"
+                >
+                  Details
+                </a>
               </div>
             </div>
-
-            <div class="mt-2">
-              <a
-                [href]="prepareAnimeDetailsUrl(anime)"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-block text-center w-full bg-brand-primary text-white px-3 py-1 rounded hover:bg-brand-secondary transition-colors text-sm"
-              >
-                Details
-              </a>
-            </div>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    }
     <div class="flex justify-center gap-5 text-xl">
       <select
         class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
@@ -148,6 +158,3 @@
     </div>
   </div>
 </div>
-
-<!--      <div class="px-3 py-1 border-2 rounded border-black text-black">My anime</div>-->
-<!--      <div class="px-3 py-1 border-2 rounded border-black text-black">All anime</div>-->

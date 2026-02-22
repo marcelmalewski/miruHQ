@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   DestroyRef,
   inject,
   OnInit,
@@ -60,6 +61,8 @@ export class HomeComponent implements OnInit {
 
   animeList: WritableSignal<Anime[]> = signal<Anime[]>([]);
 
+  titleInputTooShort: WritableSignal<boolean> = signal<boolean>(false);
+
   ngOnInit(): void {
     this.loadPage();
     this.searchTitleInput$
@@ -77,8 +80,10 @@ export class HomeComponent implements OnInit {
     if (titleInput.length < 3) {
       this.animeList.set([]);
       this.hasNextPage.set(false);
+      this.titleInputTooShort.set(true);
       return;
     }
+    this.titleInputTooShort.set(false);
     this.searchAnimeRequest.title = titleInput;
     this.loadPage();
   }
