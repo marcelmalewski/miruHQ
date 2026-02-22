@@ -1,4 +1,4 @@
-package com.marcelmalewski.miruhqapi.mal;
+package com.marcelmalewski.miruhqapi.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

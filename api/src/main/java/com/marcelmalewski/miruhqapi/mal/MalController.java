@@ -1,7 +1,7 @@
 package com.marcelmalewski.miruhqapi.mal;
 
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
-import com.marcelmalewski.miruhqapi.mal.dto.UserInfoDtoRest;
+import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDtoRest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -22,14 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-// TODO better names and better endpoints names
 @RestController
 public class MalController {
-
     private String currentState;
     private String currentCodeChallenge;
-    private final String redirectUri = "http://localhost:8080/oauth/mal/callback";
-
     @Value("${mal.client-id}")
     private String clientId;
     @Value("${mal.client-secret}")
@@ -42,15 +38,15 @@ public class MalController {
     }
 
     @GetMapping("/api/users/@me")
-    public UserInfoDtoRest getUserInfo() {
-        return malService.getUserInfo();
+    public PrincipalInfoDtoRest getPrincipalInfo() {
+        return malService.getPrincipalInfo();
     }
 
     @GetMapping("/api/users/@me/anime-list")
-    public List<AnimeDto> findUserAnimeList(
+    public List<AnimeDto> findPrincipalAnimeList(
         @RequestParam Integer limit, @RequestParam Integer offset, @RequestParam String status,
         @RequestParam String sortField) {
-        return malService.findUserAnimeList(limit, offset, status, sortField);
+        return malService.findPrincipalAnimeList(limit, offset, status, sortField);
     }
 
     @GetMapping("/api/anime")
@@ -59,6 +55,8 @@ public class MalController {
         return malService.findAnime(limit, offset, title);
     }
 
+    // TODO ogarnięcie tego, przemyśleć logike i może lepiej nazwać, pewnie to powinno być w serwisie
+    private static final String REDIRECT_URI = "http://localhost:8080/oauth/mal/callback";
     @GetMapping("/api/authenticate")
     public void authenticate(HttpServletResponse response) throws IOException {
         currentState = UUID.randomUUID().toString();
@@ -68,7 +66,7 @@ public class MalController {
             "https://myanimelist.net/v1/oauth2/authorize" +
                 "?response_type=code" +
                 "&client_id=" + clientId +
-                "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) +
+                "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI, StandardCharsets.UTF_8) +
                 "&scope=write:users" + "&state=" + currentState +
                 "&code_challenge=" + currentCodeChallenge +
                 "&code_challenge_method=plain";
@@ -76,6 +74,7 @@ public class MalController {
         response.sendRedirect(authorizeUrl);
     }
 
+    // TODO ogarnięcie tego, przemyśleć logike i może lepiej nazwać, pewnie to powinno być w serwisie
     @GetMapping("/oauth/mal/callback")
     public void callback(
         @RequestParam String code,
@@ -93,7 +92,7 @@ public class MalController {
             "&code=" + code +
             "&client_id=" + clientId +
             "&client_secret=" + clientSecret +
-            "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) +
+            "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI, StandardCharsets.UTF_8) +
             "&code_verifier=" + currentCodeChallenge;
         HttpEntity<String> entity = new HttpEntity<>(body, headers);
 

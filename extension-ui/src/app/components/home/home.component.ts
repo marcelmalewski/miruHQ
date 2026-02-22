@@ -11,7 +11,7 @@ import {
 import { MalService } from '../../services/mal.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NgOptimizedImage } from '@angular/common';
-import { Anime, UserInfo } from '../../spec/mal-spec';
+import { Anime, PrincipalInfo } from '../../spec/mal-spec';
 import {
   AnimeSortFields,
   AnimeStatuses,
@@ -24,7 +24,7 @@ import {
   SearchAllAnimeRequest,
   SearchAnimeRequest,
   SearchMode,
-  SearchUserAnimeRequest,
+  SearchPrincipalAnimeListRequest,
 } from '../../spec/search-anime-spec';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
@@ -41,7 +41,7 @@ export class HomeComponent implements OnInit {
   prettySortFields: PrettyAnimeSortField[] = Object.values(PrettyAnimeSortFields);
   pageSizeOptions = [10, 25, 50];
 
-  currentMode: string = SearchMode.USER_ANIME;
+  currentMode: string = SearchMode.PRINCIPAL_ANIME;
   searchAnimeRequest: SearchAnimeRequest = {
     status: AnimeStatuses.PLAN_TO_WATCH,
     sortField: AnimeSortFields.ANIME_START_DATE,
@@ -55,7 +55,7 @@ export class HomeComponent implements OnInit {
 
   hasNextPage: WritableSignal<boolean> = signal(true);
 
-  userInfo: Signal<UserInfo | null> = toSignal(this.malService.getUserInfo(), {
+  principalInfo: Signal<PrincipalInfo | null> = toSignal(this.malService.getPrincipalInfo(), {
     initialValue: null,
   });
 
@@ -98,7 +98,7 @@ export class HomeComponent implements OnInit {
   switchMode(mode: string) {
     if (this.currentMode === mode) return;
     this.currentMode = mode;
-    if (this.currentMode === SearchMode.USER_ANIME) {
+    if (this.currentMode === SearchMode.PRINCIPAL_ANIME) {
       this.searchAnimeRequest = {
         status: AnimeStatuses.PLAN_TO_WATCH,
         sortField: AnimeSortFields.ANIME_START_DATE,
@@ -141,16 +141,19 @@ export class HomeComponent implements OnInit {
   loadPage() {
     const offset = (this.searchAnimeRequest.page - 1) * this.searchAnimeRequest.pageSize;
 
-    if (this.currentMode === SearchMode.USER_ANIME) {
-      this.loadUserAnimeList(this.searchAnimeRequest as SearchUserAnimeRequest, offset);
+    if (this.currentMode === SearchMode.PRINCIPAL_ANIME) {
+      this.loadPrincipalAnimeList(
+        this.searchAnimeRequest as SearchPrincipalAnimeListRequest,
+        offset,
+      );
     } else {
       this.loadAllAnimeList(this.searchAnimeRequest as SearchAllAnimeRequest, offset);
     }
   }
 
-  loadUserAnimeList(searchAnimeRequest: SearchUserAnimeRequest, offset: number) {
+  loadPrincipalAnimeList(searchAnimeRequest: SearchPrincipalAnimeListRequest, offset: number) {
     this.malService
-      .findUserAnimeList(
+      .findPrincipalAnimeList(
         searchAnimeRequest.pageSize,
         offset,
         searchAnimeRequest.status,
@@ -184,8 +187,8 @@ export class HomeComponent implements OnInit {
     return `${end.toISOString().split('T')[0]} (${diffDays} days)`;
   }
 
-  prepareUserInfoDetailsUrl(userInfo: UserInfo) {
-    return `https://myanimelist.net/profile/${userInfo.name}`;
+  preparePrincipalInfoDetailsUrl(principalInfo: PrincipalInfo) {
+    return `https://myanimelist.net/profile/${principalInfo.name}`;
   }
 
   prepareAnimeDetailsUrl(anime: Anime): string {

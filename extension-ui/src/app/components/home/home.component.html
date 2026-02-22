@@ -1,10 +1,10 @@
 <div class="screen-box flex gap-5">
-  @if (userInfo()) {
+  @if (principalInfo()) {
     <div class="h-full w-56 p-5 text-brand-primary flex flex-col gap-5 text-lg">
-      <p class="text-3xl font-bold">{{ userInfo()!.name }}</p>
+      <p class="text-3xl font-bold">{{ principalInfo()!.name }}</p>
       <div class="flex flex-col gap-1">
         <a
-          [href]="prepareUserInfoDetailsUrl(userInfo()!)"
+          [href]="preparePrincipalInfoDetailsUrl(principalInfo()!)"
           target="_blank"
           rel="noopener noreferrer"
           class="text-2xl text-black hover:underline flex justify-start items-center"
@@ -27,7 +27,7 @@
 
   <div class="flex flex-col flex-grow gap-5 p-5">
     <div class="flex justify-center gap-5 text-xl">
-      @if (currentMode === SearchMode.USER_ANIME) {
+      @if (currentMode === SearchMode.PRINCIPAL_ANIME) {
         <select
           class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
           (change)="onStatusChange($any($event.target).value)"
@@ -55,10 +55,10 @@
       <button
         type="button"
         class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
-        [class.opacity-40]="currentMode !== SearchMode.USER_ANIME"
-        [class.border-black]="currentMode === SearchMode.USER_ANIME"
-        (click)="switchMode(SearchMode.USER_ANIME)"
-        (keydown)="onModeKeyDown($event, SearchMode.USER_ANIME)"
+        [class.opacity-40]="currentMode !== SearchMode.PRINCIPAL_ANIME"
+        [class.border-black]="currentMode === SearchMode.PRINCIPAL_ANIME"
+        (click)="switchMode(SearchMode.PRINCIPAL_ANIME)"
+        (keydown)="onModeKeyDown($event, SearchMode.PRINCIPAL_ANIME)"
       >
         My anime
       </button>

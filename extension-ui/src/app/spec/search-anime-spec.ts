@@ -1,4 +1,4 @@
-export interface SearchUserAnimeRequest extends PaginatedRequest {
+export interface SearchPrincipalAnimeListRequest extends PaginatedRequest {
   status: AnimeStatus;
   sortField: AnimeSortField;
 }
@@ -14,7 +14,7 @@ export interface SearchAnimeRequest extends PaginatedRequest {
 }
 
 export const SearchMode = {
-  USER_ANIME: 'USER_ANIME',
+  PRINCIPAL_ANIME: 'PRINCIPAL_ANIME',
   ALL_ANIME: 'ALL_ANIME',
 } as const;
 

@@ -11,7 +11,7 @@ export interface MainPicture {
   large: string;
 }
 
-export interface UserInfo {
+export interface PrincipalInfo {
   id: string;
   name: string;
 }
