@@ -7,6 +7,7 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class MalClientConfig {
+
     @Value("${mal.client-id}")
     private String clientId;
 

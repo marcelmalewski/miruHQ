@@ -106,7 +106,7 @@
                   </p>
                   <p>
                     <span class="font-medium text-gray-800">Total Episodes:</span>
-                    {{ anime.numEpisodes }}
+                    {{ anime.numEpisodes > 0 ? anime.numEpisodes : 'Unknown' }}
                   </p>
                   <p>
                     <span class="font-medium text-gray-800">Expected Finish:</span>

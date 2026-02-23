@@ -2,7 +2,7 @@ export interface Anime {
   id: string;
   title: string;
   startDate: string;
-  numEpisodes: string;
+  numEpisodes: number;
   mainPicture: MainPicture;
 }
 

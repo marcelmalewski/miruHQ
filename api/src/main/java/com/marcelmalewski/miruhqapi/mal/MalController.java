@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class MalController {
+
     private String currentState;
     private String currentCodeChallenge;
     @Value("${mal.client-id}")
@@ -57,6 +58,7 @@ public class MalController {
 
     // TODO ogarnięcie tego, przemyśleć logike i może lepiej nazwać, pewnie to powinno być w serwisie
     private static final String REDIRECT_URI = "http://localhost:8080/oauth/mal/callback";
+
     @GetMapping("/api/authenticate")
     public void authenticate(HttpServletResponse response) throws IOException {
         currentState = UUID.randomUUID().toString();

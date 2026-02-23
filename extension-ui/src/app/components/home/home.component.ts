@@ -179,8 +179,8 @@ export class HomeComponent implements OnInit {
   }
 
   calculateEstimatedEndDateWithDays(startDate: string, numEpisodes: number): string {
-    const startDateElements = startDate.split('-');
-    if (startDateElements.length < 3 || numEpisodes === 0) {
+    const startDateParts = startDate.split('-');
+    if (startDateParts.length < 3 || numEpisodes === 0) {
       return 'Unknown';
     }
 
@@ -198,16 +198,10 @@ export class HomeComponent implements OnInit {
 
     const diffMs = end.getTime() - today.getTime();
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
     const endDateStr = end.toISOString().slice(0, 10);
 
-    if (diffDays < 0) {
-      return `${endDateStr} (ended ${Math.abs(diffDays)} days ago)`;
-    }
-
-    return `${endDateStr} (${diffDays} days remaining)`;
+    return diffDays < 0 ? `Finished` : `${endDateStr} (${diffDays} days remaining)`;
   }
-
   preparePrincipalInfoDetailsUrl(principalInfo: PrincipalInfo) {
     return `https://myanimelist.net/profile/${principalInfo.name}`;
   }
