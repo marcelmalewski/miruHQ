@@ -1,6 +1,5 @@
 import {
   Component,
-  computed,
   DestroyRef,
   inject,
   OnInit,
@@ -37,12 +36,12 @@ export class HomeComponent implements OnInit {
   private readonly malService = inject(MalService);
   private readonly destroyRef = inject(DestroyRef);
 
-  prettyStatuses: PrettyAnimeStatus[] = Object.values(PrettyAnimeStatuses);
-  prettySortFields: PrettyAnimeSortField[] = Object.values(PrettyAnimeSortFields);
-  pageSizeOptions = [10, 25, 50];
+  protected prettyStatuses: PrettyAnimeStatus[] = Object.values(PrettyAnimeStatuses);
+  protected prettySortFields: PrettyAnimeSortField[] = Object.values(PrettyAnimeSortFields);
+  protected pageSizeOptions = [10, 25, 50];
 
-  currentMode: string = SearchMode.PRINCIPAL_ANIME;
-  searchAnimeRequest: SearchAnimeRequest = {
+  protected currentMode: string = SearchMode.PRINCIPAL_ANIME;
+  protected searchAnimeRequest: SearchAnimeRequest = {
     status: AnimeStatuses.PLAN_TO_WATCH,
     sortField: AnimeSortFields.ANIME_START_DATE,
     page: 1,
@@ -53,15 +52,18 @@ export class HomeComponent implements OnInit {
 
   protected readonly SearchMode = SearchMode;
 
-  hasNextPage: WritableSignal<boolean> = signal(true);
+  protected readonly hasNextPage: WritableSignal<boolean> = signal(true);
 
-  principalInfo: Signal<PrincipalInfo | null> = toSignal(this.malService.getPrincipalInfo(), {
-    initialValue: null,
-  });
+  protected readonly principalInfo: Signal<PrincipalInfo | null> = toSignal(
+    this.malService.getPrincipalInfo(),
+    {
+      initialValue: null,
+    },
+  );
 
-  animeList: WritableSignal<Anime[]> = signal<Anime[]>([]);
+  protected readonly animeList: WritableSignal<Anime[]> = signal<Anime[]>([]);
 
-  titleInputTooShort: WritableSignal<boolean> = signal<boolean>(false);
+  protected readonly titleInputTooShort: WritableSignal<boolean> = signal<boolean>(false);
 
   ngOnInit(): void {
     this.loadPage();

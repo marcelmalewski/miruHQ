@@ -4,8 +4,4 @@ import { Component } from '@angular/core';
   selector: 'ouath-success',
   templateUrl: './oauth-success.component.html',
 })
-export class OauthSuccessComponent {
-  closePage(): void {
-    window.close();
-  }
-}
+export class OauthSuccessComponent {}
