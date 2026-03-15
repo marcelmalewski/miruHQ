@@ -1,5 +1,12 @@
 package com.marcelmalewski.miruhqapi.mal;
 
+import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
+import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoMapper;
+import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoRest;
+import com.marcelmalewski.miruhqapi.mal.dto.AnimeListDtoRest;
+import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDtoRest;
+import com.marcelmalewski.miruhqapi.mal.maltoken.MalToken;
+import com.marcelmalewski.miruhqapi.mal.maltoken.MalTokenRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -8,54 +15,74 @@ import org.springframework.web.client.RestClient;
 @Service
 public class MalService {
 
-    private String accessToken;
-
     private final RestClient restClient;
+    private final MalTokenRepository tokenRepository;
     private final AnimeDtoMapper animeDtoMapper;
 
-    public MalService(RestClient restClient, AnimeDtoMapper animeDtoMapper) {
+    public MalService(RestClient restClient, AnimeDtoMapper animeDtoMapper, MalTokenRepository tokenRepository) {
         this.restClient = restClient;
         this.animeDtoMapper = animeDtoMapper;
+        this.tokenRepository = tokenRepository;
     }
 
-    public void getUserInfo() {
-        restClient
-            .get()
-            .uri(uriBuilder -> uriBuilder
-                .path("/anime/{id}")
-                .build()
-            )
+    PrincipalInfoDtoRest getPrincipalInfo(String username) {
+        final String accessToken = getAccessToken(username);
+
+        return restClient.get().uri(uriBuilder -> uriBuilder.path("/users/@me").build())
+            .header("Authorization", "Bearer " + accessToken).retrieve()
+            .body(PrincipalInfoDtoRest.class);
+    }
+
+    List<AnimeDto> findPrincipalAnimeList(Integer limit, Integer offset, String status, String sortField) {
+        final String accessToken = getAccessToken("username");
+
+        final AnimeListDtoRest response = restClient.get()
+            .uri(uriBuilder -> uriBuilder.path("/users/@me/animelist")
+                .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
+                .queryParam("status", status)
+                .queryParam("limit", limit)
+                .queryParam("offset", offset)
+                .queryParam("sort", sortField)
+                .build())
+            .header("Authorization", "Bearer " + accessToken)
             .retrieve()
-            .body(AnimeMal.class);
+            .body(AnimeListDtoRest.class);
+
+        return mapAnimeListDto(response);
     }
 
-    public List<AnimeDto> searchAnime(AnimeSearchRequest request) {
-        List<AnimeDto> animeDtos = new ArrayList<>();
-        request.ids().forEach(id -> {
-                AnimeMal response = restClient
-                    .get()
-                    .uri(uriBuilder -> uriBuilder
-                        .path("/anime/{id}")
-                        .queryParam(
-                            "fields",
-                            "id,title,main_picture,start_date,num_episodes"
-                        )
-                        .build(id)
-                    )
-                    .retrieve()
-                    .body(AnimeMal.class);
-                animeDtos.add(animeDtoMapper.toAnimeDto(response));
-            }
-        );
+    private String getAccessToken(String username) {
+        final MalToken token = tokenRepository.findByUsername(username)
+            .orElseThrow(() -> new IllegalStateException("User not authenticated with MAL"));
 
-        return animeDtos;
+        if (token.isExpired()) {
+            throw new IllegalStateException("Access token expired");
+        }
+
+        return token.getAccessToken();
     }
 
-    public void setAccessToken(String token) {
-        this.accessToken = token;
+    final List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {
+        AnimeListDtoRest response = restClient.get()
+            .uri(uriBuilder -> uriBuilder.path("/anime")
+                .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
+                .queryParam("limit", limit)
+                .queryParam("offset", offset)
+                .queryParam("q", title)
+                .build())
+            .retrieve()
+            .body(AnimeListDtoRest.class);
+
+        return mapAnimeListDto(response);
     }
 
-    public String getAccessToken() {
-        return accessToken;
+    private List<AnimeDto> mapAnimeListDto(AnimeListDtoRest animeListDtoRest) {
+        if (animeListDtoRest == null) {
+            return new ArrayList<>();
+        }
+
+        return animeListDtoRest.data().stream().map(
+                animeListDataDtoRest -> this.animeDtoMapper.toAnimeDto(animeListDataDtoRest.node()))
+            .toList();
     }
 }
