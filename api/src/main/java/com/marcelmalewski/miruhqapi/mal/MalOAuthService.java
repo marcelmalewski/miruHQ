@@ -3,9 +3,9 @@ package com.marcelmalewski.miruhqapi.mal;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 import com.marcelmalewski.miruhqapi.mal.maltoken.MalTokenDtoRest;
-import java.util.Map;
+import com.marcelmalewski.miruhqapi.mal.maltoken.MalTokenService;
+import jakarta.servlet.http.HttpSession;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,8 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class MalOAuthService {
+
     private static final String REDIRECT_URI = "http://localhost:8080/api/oauth/mal/callback";
-    private final Map<String, String> stateToCodeChallenge = new ConcurrentHashMap<>();
 
     @Value("${mal.client-id}")
     private String clientId;
@@ -26,15 +26,21 @@ public class MalOAuthService {
 
     private final WebClient malWebClient;
 
-    public MalOAuthService(WebClient malWebClient) {
+    private final MalTokenService malTokenService;
+
+    public MalOAuthService(WebClient malWebClient, MalTokenService malTokenService) {
         this.malWebClient = malWebClient;
+        this.malTokenService = malTokenService;
     }
 
-    String buildAuthorizationUrl() {
-        String state = UUID.randomUUID().toString();
-        String codeChallenge = generateCodeChallenge();
+    String buildAuthorizationUrl(HttpSession session) {
+        final var state = UUID.randomUUID().toString();
+        final var codeChallenge = generateCodeChallenge();
 
-        stateToCodeChallenge.put(state, codeChallenge);
+        session.setAttribute("mal_state", state);
+        session.setAttribute("mal_code_challenge", codeChallenge);
+        // TODO zdobyć userId to albo niżej
+        session.setAttribute("user_id", "...");
 
         return "https://myanimelist.net/v1/oauth2/authorize"
             + "?response_type=code"
@@ -50,13 +56,15 @@ public class MalOAuthService {
             + UUID.randomUUID().toString().replace("-", "");
     }
 
-    void handleCallback(String code, String state) {
-        final String codeChallenge = stateToCodeChallenge.remove(state);
-        if (codeChallenge == null) {
+    void handleCallback(String code, String state, HttpSession session) {
+        final var expectedState = (String) session.getAttribute("mal_state");
+        final var codeChallenge = (String) session.getAttribute("mal_code_challenge");
+
+        if (!state.equals(expectedState)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid state");
         }
 
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        final var body = new LinkedMultiValueMap<>();
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
         body.add("grant_type", "authorization_code");
@@ -64,16 +72,19 @@ public class MalOAuthService {
         body.add("redirect_uri", REDIRECT_URI);
         body.add("code_verifier", codeChallenge);
 
-        final MalTokenDtoRest token = malWebClient.post()
+        final var token = malWebClient.post()
             .uri("/v1/oauth2/token")
             .contentType(APPLICATION_FORM_URLENCODED)
             .bodyValue(body)
             .retrieve()
             .bodyToMono(MalTokenDtoRest.class)
             .block();
-
-        if (token != null) {
-            System.out.println("Access token: " + token.accessToken());
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                "Failed to retrieve access token from MAL");
         }
+
+        // TODO teraz mogę użyc tego tokena by pobrać userId, czy to jest dobre? na razie styknie
+//        malTokenService.save();
     }
 }

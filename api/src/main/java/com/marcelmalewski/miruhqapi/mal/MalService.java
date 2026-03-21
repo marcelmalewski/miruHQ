@@ -5,7 +5,6 @@ import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeListDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDtoRest;
-import com.marcelmalewski.miruhqapi.mal.maltoken.MalToken;
 import com.marcelmalewski.miruhqapi.mal.maltoken.MalTokenRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,24 +18,26 @@ public class MalService {
     private final MalTokenRepository tokenRepository;
     private final AnimeDtoMapper animeDtoMapper;
 
-    public MalService(RestClient restClient, AnimeDtoMapper animeDtoMapper, MalTokenRepository tokenRepository) {
+    public MalService(RestClient restClient, AnimeDtoMapper animeDtoMapper,
+        MalTokenRepository tokenRepository) {
         this.restClient = restClient;
         this.animeDtoMapper = animeDtoMapper;
         this.tokenRepository = tokenRepository;
     }
 
-    PrincipalInfoDtoRest getPrincipalInfo(String username) {
-        final String accessToken = getAccessToken(username);
+    PrincipalInfoDtoRest getPrincipalInfo(Integer userId) {
+        final var accessToken = getAccessToken(userId);
 
         return restClient.get().uri(uriBuilder -> uriBuilder.path("/users/@me").build())
             .header("Authorization", "Bearer " + accessToken).retrieve()
             .body(PrincipalInfoDtoRest.class);
     }
 
-    List<AnimeDto> findPrincipalAnimeList(Integer limit, Integer offset, String status, String sortField) {
-        final String accessToken = getAccessToken("username");
+    List<AnimeDto> findPrincipalAnimeList(Integer userId, Integer limit, Integer offset,
+        String status, String sortField) {
+        final var accessToken = getAccessToken(userId);
 
-        final AnimeListDtoRest response = restClient.get()
+        final var response = restClient.get()
             .uri(uriBuilder -> uriBuilder.path("/users/@me/animelist")
                 .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
                 .queryParam("status", status)
@@ -51,8 +52,8 @@ public class MalService {
         return mapAnimeListDto(response);
     }
 
-    private String getAccessToken(String username) {
-        final MalToken token = tokenRepository.findByUsername(username)
+    private String getAccessToken(Integer userId) {
+        final var token = tokenRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalStateException("User not authenticated with MAL"));
 
         if (token.isExpired()) {
@@ -63,7 +64,7 @@ public class MalService {
     }
 
     final List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {
-        AnimeListDtoRest response = restClient.get()
+        final var response = restClient.get()
             .uri(uriBuilder -> uriBuilder.path("/anime")
                 .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
                 .queryParam("limit", limit)

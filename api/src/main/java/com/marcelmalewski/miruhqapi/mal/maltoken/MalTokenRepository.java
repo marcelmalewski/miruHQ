@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MalTokenRepository extends JpaRepository<MalToken, Long> {
-    Optional<MalToken> findByUsername(String username);
+    Optional<MalToken> findByUserId(Integer userId);
 }

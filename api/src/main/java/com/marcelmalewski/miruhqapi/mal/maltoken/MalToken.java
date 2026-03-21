@@ -19,8 +19,9 @@ public class MalToken {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String username;
+    private Integer userId;
 
+    // TODO napewno chce to przechowywać jako string? mam na ten moment inną opcje?
     @Column(name = "access_token", nullable = false, columnDefinition = "TEXT")
     private String accessToken;
 

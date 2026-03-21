@@ -7,12 +7,9 @@ CREATE SEQUENCE mal_tokens_sequence
 CREATE TABLE mal_tokens
 (
     id            BIGINT PRIMARY KEY DEFAULT nextval('mal_tokens_sequence'),
-
-    username      VARCHAR(255) NOT NULL UNIQUE,
-
+    user_id INTEGER NOT NULL UNIQUE,
     access_token  TEXT         NOT NULL,
     refresh_token TEXT         NOT NULL,
-
     expires_at    TIMESTAMPTZ  NOT NULL
 );
 

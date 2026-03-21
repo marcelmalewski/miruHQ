@@ -3,14 +3,17 @@ package com.marcelmalewski.miruhqapi.mal;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDtoRest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MalController {
+
     private final MalService malService;
     private final MalOAuthService malOAuthService;
 
@@ -19,15 +22,16 @@ public class MalController {
         this.malOAuthService = malOAuthService;
     }
 
-    @GetMapping("/api/users/@me")
-    public PrincipalInfoDtoRest getPrincipalInfo() {
-        return malService.getPrincipalInfo("test");
+    @GetMapping("/api/users/{userId}")
+    public PrincipalInfoDtoRest getPrincipalInfo(@PathVariable Integer userId) {
+        return malService.getPrincipalInfo(userId);
     }
 
-    @GetMapping("/api/users/@me/anime-list")
-    public List<AnimeDto> findPrincipalAnimeList(@RequestParam Integer limit,
+    @GetMapping("/api/users/{userId}/anime-list")
+    public List<AnimeDto> findPrincipalAnimeList(@PathVariable Integer userId,
+        @RequestParam Integer limit,
         @RequestParam Integer offset, @RequestParam String status, @RequestParam String sortField) {
-        return malService.findPrincipalAnimeList(limit, offset, status, sortField);
+        return malService.findPrincipalAnimeList(userId, limit, offset, status, sortField);
     }
 
     @GetMapping("/api/anime")
@@ -37,15 +41,15 @@ public class MalController {
     }
 
     @GetMapping("/api/oauth/mal/login")
-    public void login(HttpServletResponse response) throws IOException {
-        String authorizeUrl = malOAuthService.buildAuthorizationUrl();
+    public void login(HttpServletResponse response, HttpSession session) throws IOException {
+        String authorizeUrl = malOAuthService.buildAuthorizationUrl(session);
         response.sendRedirect(authorizeUrl);
     }
 
     @GetMapping("/api/oauth/mal/callback")
     public void callback(@RequestParam String code, @RequestParam String state,
-        HttpServletResponse response) throws IOException {
-        malOAuthService.handleCallback(code, state);
+        HttpServletResponse response, HttpSession session) throws IOException {
+        malOAuthService.handleCallback(code, state, session);
         response.sendRedirect("http://localhost:4200/oauth-success");
     }
 }
