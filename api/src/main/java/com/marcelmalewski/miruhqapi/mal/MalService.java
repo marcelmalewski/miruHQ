@@ -5,7 +5,6 @@ import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeListDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDtoRest;
-import com.marcelmalewski.miruhqapi.mal.maltoken.MalTokenRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -15,14 +14,11 @@ import org.springframework.web.client.RestClient;
 public class MalService {
 
     private final RestClient restClient;
-    private final MalTokenRepository tokenRepository;
     private final AnimeDtoMapper animeDtoMapper;
 
-    public MalService(RestClient restClient, AnimeDtoMapper animeDtoMapper,
-        MalTokenRepository tokenRepository) {
+    public MalService(RestClient restClient, AnimeDtoMapper animeDtoMapper) {
         this.restClient = restClient;
         this.animeDtoMapper = animeDtoMapper;
-        this.tokenRepository = tokenRepository;
     }
 
     PrincipalInfoDtoRest getPrincipalInfo(Integer userId) {
@@ -53,14 +49,14 @@ public class MalService {
     }
 
     private String getAccessToken(Integer userId) {
-        final var token = tokenRepository.findByUserId(userId)
-            .orElseThrow(() -> new IllegalStateException("User not authenticated with MAL"));
+//        final var token = tokenRepository.findByUserId(userId)
+//            .orElseThrow(() -> new IllegalStateException("User not authenticated with MAL"));
+//
+//        if (token.isExpired()) {
+//            throw new IllegalStateException("Access token expired");
+//        }
 
-        if (token.isExpired()) {
-            throw new IllegalStateException("Access token expired");
-        }
-
-        return token.getAccessToken();
+        return "token.getAccessToken()";
     }
 
     final List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {
