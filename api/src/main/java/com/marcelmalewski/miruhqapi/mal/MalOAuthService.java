@@ -2,9 +2,14 @@ package com.marcelmalewski.miruhqapi.mal;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
+import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDto;
+import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDtoRest;
-import jakarta.servlet.http.HttpSession;
+import com.marcelmalewski.miruhqapi.mal.dto.StoredState;
+import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,48 +26,54 @@ public class MalOAuthService {
     @Value("${mal.client-secret}")
     private String clientSecret;
 
-    private final WebClient malWebClient;
+    private final Map<String, StoredState> stateStore = new ConcurrentHashMap<>();
 
-    public MalOAuthService(WebClient malWebClient) {
+    private final WebClient malWebClient;
+    private final MalTokenDtoMapper malTokenDtoMapper;
+
+    public MalOAuthService(WebClient malWebClient, MalTokenDtoMapper malTokenDtoMapper) {
         this.malWebClient = malWebClient;
+        this.malTokenDtoMapper = malTokenDtoMapper;
     }
 
-    String buildAuthorizationUrl(HttpSession session) {
+    public String buildAuthorizationUrl() {
         final var state = UUID.randomUUID().toString();
-        final var codeChallenge = generateCodeChallenge();
+        final var codeVerifier = generateCodeVerifier();
 
-        session.setAttribute("mal_state", state);
-        session.setAttribute("mal_code_challenge", codeChallenge);
+        stateStore.put(state, new StoredState(codeVerifier, Instant.now()));
 
         return "https://myanimelist.net/v1/oauth2/authorize"
             + "?response_type=code"
             + "&client_id=" + clientId
             + "&redirect_uri=" + REDIRECT_URI
             + "&state=" + state
-            + "&code_challenge=" + codeChallenge
+            + "&code_challenge=" + codeVerifier
             + "&code_challenge_method=plain";
     }
 
-    private String generateCodeChallenge() {
+    private String generateCodeVerifier() {
         return UUID.randomUUID().toString().replace("-", "")
             + UUID.randomUUID().toString().replace("-", "");
     }
 
-    MalTokenDtoRest handleCallback(String code, String state, HttpSession session) {
-        final var expectedState = (String) session.getAttribute("mal_state");
-        final var codeChallenge = (String) session.getAttribute("mal_code_challenge");
+    public MalTokenDto exchangeCode(String code, String state) {
+        final var stored = stateStore.remove(state);
 
-        if (!state.equals(expectedState)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid state");
+        if (stored == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid or expired state");
         }
 
-        final var body = new LinkedMultiValueMap<>();
+        if (stored.createdAt().isBefore(Instant.now().minusSeconds(300))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "State expired");
+        }
+
+        final var body = new LinkedMultiValueMap<String, String>();
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
         body.add("grant_type", "authorization_code");
         body.add("code", code);
         body.add("redirect_uri", REDIRECT_URI);
-        body.add("code_verifier", codeChallenge);
+        body.add("code_verifier", stored.codeVerifier());
 
         final var token = malWebClient.post()
             .uri("/v1/oauth2/token")
@@ -75,6 +86,7 @@ public class MalOAuthService {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                 "Failed to retrieve access token from MAL");
         }
-        return token;
+
+        return this.malTokenDtoMapper.toMalTokenDto(token);
     }
 }

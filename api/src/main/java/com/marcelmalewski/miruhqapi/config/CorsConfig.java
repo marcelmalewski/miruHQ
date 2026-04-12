@@ -16,10 +16,12 @@ public class CorsConfig {
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/api/**")
                     .allowedOrigins(
-                        "chrome-extension://eoeekjllkilpkcafhodpaicjihccfofj"
+                        "chrome-extension://eoeekjllkilpkcafhodpaicjihccfofj",
+                        "http://localhost:4200"
                     )
                     .allowedMethods("GET", "POST", "PUT", "DELETE")
-                    .allowedHeaders("*");
+                    .allowedHeaders("*")
+                    .allowCredentials(true);
             }
         };
     }

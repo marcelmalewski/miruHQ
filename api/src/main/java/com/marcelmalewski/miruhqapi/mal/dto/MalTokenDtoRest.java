@@ -1,4 +1,4 @@
-package com.marcelmalewski.miruhqapi.mal.maltoken;
+package com.marcelmalewski.miruhqapi.mal.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

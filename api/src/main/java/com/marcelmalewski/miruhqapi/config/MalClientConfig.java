@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
 // TODO webclient?
+// TODO czy jak mam token to potrzebuje tego client id? potestowac
 @Configuration
 public class MalClientConfig {
     @Value("${mal.client-id}")

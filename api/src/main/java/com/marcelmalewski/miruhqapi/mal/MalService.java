@@ -21,18 +21,14 @@ public class MalService {
         this.animeDtoMapper = animeDtoMapper;
     }
 
-    PrincipalInfoDtoRest getPrincipalInfo(Integer userId) {
-        final var accessToken = getAccessToken(userId);
-
+    PrincipalInfoDtoRest getPrincipalInfo(String token) {
         return restClient.get().uri(uriBuilder -> uriBuilder.path("/users/@me").build())
-            .header("Authorization", "Bearer " + accessToken).retrieve()
+            .header("Authorization", "Bearer " + token).retrieve()
             .body(PrincipalInfoDtoRest.class);
     }
 
-    List<AnimeDto> findPrincipalAnimeList(Integer userId, Integer limit, Integer offset,
+    List<AnimeDto> findPrincipalAnimeList(String token, Integer limit, Integer offset,
         String status, String sortField) {
-        final var accessToken = getAccessToken(userId);
-
         final var response = restClient.get()
             .uri(uriBuilder -> uriBuilder.path("/users/@me/animelist")
                 .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
@@ -41,22 +37,11 @@ public class MalService {
                 .queryParam("offset", offset)
                 .queryParam("sort", sortField)
                 .build())
-            .header("Authorization", "Bearer " + accessToken)
+            .header("Authorization", "Bearer " + token)
             .retrieve()
             .body(AnimeListDtoRest.class);
 
         return mapAnimeListDto(response);
-    }
-
-    private String getAccessToken(Integer userId) {
-//        final var token = tokenRepository.findByUserId(userId)
-//            .orElseThrow(() -> new IllegalStateException("User not authenticated with MAL"));
-//
-//        if (token.isExpired()) {
-//            throw new IllegalStateException("Access token expired");
-//        }
-
-        return "token.getAccessToken()";
     }
 
     final List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { from, Observable, switchMap } from 'rxjs';
 import { Anime, PrincipalInfo } from '../spec/mal-spec';
 
 @Injectable({
@@ -8,7 +8,6 @@ import { Anime, PrincipalInfo } from '../spec/mal-spec';
 })
 export class MalService {
   private readonly http = inject(HttpClient);
-
   private readonly baseUrl = 'http://localhost:8080/api';
 
   findAnime(pageSize: number, offset: number, title: string): Observable<Anime[]> {
@@ -23,11 +22,38 @@ export class MalService {
     sortField: string,
   ): Observable<Anime[]> {
     const url = `${this.baseUrl}/users/@me/anime-list?limit=${pageSize}&offset=${offset}&status=${statusOption}&sortField=${sortField}`;
-    return this.http.get<Anime[]>(url);
+    return this.withAuthHeaders((headers) => this.http.get<Anime[]>(url, { headers }));
   }
 
   getPrincipalInfo(): Observable<PrincipalInfo> {
     const url = `${this.baseUrl}/users/@me`;
-    return this.http.get<PrincipalInfo>(url);
+    return this.withAuthHeaders((headers) => this.http.get<PrincipalInfo>(url, { headers }));
+  }
+
+  private withAuthHeaders<T>(requestFn: (headers: HttpHeaders) => Observable<T>): Observable<T> {
+    return this.getToken$().pipe(
+      switchMap((token) => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+        return requestFn(headers);
+      }),
+    );
+  }
+
+  private getToken$(): Observable<string> {
+    return from(
+      new Promise<string>((resolve, reject) => {
+        chrome.storage.local.get(['malToken'], (result) => {
+          const token = (result as Record<string, unknown>)['malToken'];
+
+          if (typeof token === 'string' && token.length > 0) {
+            resolve(token);
+          } else {
+            reject(new Error('No MAL token found'));
+          }
+        });
+      }),
+    );
   }
 }
