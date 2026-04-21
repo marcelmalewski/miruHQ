@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,5 +76,10 @@ public class MalController {
             throw new IllegalArgumentException("Missing or invalid Authorization header");
         }
         return authHeader.substring(7); // remove "Bearer "
+    }
+
+    @PostMapping("/api/oauth/mal/refresh")
+    public MalTokenDto refresh(@RequestParam String refreshToken) {
+        return malOAuthService.refreshToken(refreshToken);
     }
 }

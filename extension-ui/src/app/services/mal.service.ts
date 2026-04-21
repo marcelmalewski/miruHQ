@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { from, Observable, switchMap } from 'rxjs';
+import { catchError, from, Observable, switchMap } from 'rxjs';
 import { Anime, PrincipalInfo } from '../spec/mal-spec';
 
+// TODO Obsłużyć errory, pewnie jako notyfikacje hmm
 @Injectable({
   providedIn: 'root',
 })
@@ -36,7 +37,22 @@ export class MalService {
         const headers = new HttpHeaders({
           Authorization: `Bearer ${token}`,
         });
-        return requestFn(headers);
+
+        return requestFn(headers).pipe(
+          catchError((err) => {
+            if (err.status === 401) {
+              return this.refreshToken$().pipe(
+                switchMap((newToken) => {
+                  const newHeaders = new HttpHeaders({
+                    Authorization: `Bearer ${newToken}`,
+                  });
+                  return requestFn(newHeaders);
+                }),
+              );
+            }
+            throw err;
+          }),
+        );
       }),
     );
   }
@@ -51,6 +67,20 @@ export class MalService {
             resolve(token);
           } else {
             reject(new Error('No MAL token found'));
+          }
+        });
+      }),
+    );
+  }
+
+  private refreshToken$(): Observable<string> {
+    return from(
+      new Promise<string>((resolve, reject) => {
+        chrome.runtime.sendMessage({ type: 'REFRESH_MAL_TOKEN' }, (response) => {
+          if (response?.success) {
+            resolve(response.accessToken);
+          } else {
+            reject(new Error('Failed to refresh token'));
           }
         });
       }),

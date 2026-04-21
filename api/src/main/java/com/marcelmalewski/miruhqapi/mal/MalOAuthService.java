@@ -26,6 +26,7 @@ public class MalOAuthService {
     @Value("${mal.client-secret}")
     private String clientSecret;
 
+    // TODO zabezpieczyś się przed brakiem pamięci w mapie
     private final Map<String, StoredState> stateStore = new ConcurrentHashMap<>();
 
     private final WebClient malWebClient;
@@ -88,5 +89,20 @@ public class MalOAuthService {
         }
 
         return this.malTokenDtoMapper.toMalTokenDto(token);
+    }
+
+    public MalTokenDto refreshToken(String refreshToken) {
+        final var body = new LinkedMultiValueMap<String, String>();
+        body.add("grant_type", "refresh_token");
+        body.add("refresh_token", refreshToken);
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
+
+        return malWebClient.post()
+            .uri("/v1/oauth2/token")
+            .bodyValue(body)
+            .retrieve()
+            .bodyToMono(MalTokenDto.class)
+            .block();
     }
 }
