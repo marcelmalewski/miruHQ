@@ -7,29 +7,34 @@ import com.marcelmalewski.miruhqapi.mal.dto.AnimeListDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDtoRest;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service
 public class MalService {
 
-    private final RestClient restClient;
+    private final RestClient publicClient;
+    private final RestClient malPrincipalClient;
     private final AnimeDtoMapper animeDtoMapper;
 
-    public MalService(RestClient restClient, AnimeDtoMapper animeDtoMapper) {
-        this.restClient = restClient;
+    public MalService(@Qualifier("malPublicClient") RestClient publicClient,
+        @Qualifier("malPrincipalClient") RestClient malPrincipalClient,
+        AnimeDtoMapper animeDtoMapper) {
+        this.publicClient = publicClient;
+        this.malPrincipalClient = malPrincipalClient;
         this.animeDtoMapper = animeDtoMapper;
     }
 
     PrincipalInfoDtoRest getPrincipalInfo(String token) {
-        return restClient.get().uri(uriBuilder -> uriBuilder.path("/users/@me").build())
+        return malPrincipalClient.get().uri(uriBuilder -> uriBuilder.path("/users/@me").build())
             .header("Authorization", "Bearer " + token).retrieve()
             .body(PrincipalInfoDtoRest.class);
     }
 
     List<AnimeDto> findPrincipalAnimeList(String token, Integer limit, Integer offset,
         String status, String sortField) {
-        final var response = restClient.get()
+        final var response = malPrincipalClient.get()
             .uri(uriBuilder -> uriBuilder.path("/users/@me/animelist")
                 .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
                 .queryParam("status", status)
@@ -45,7 +50,7 @@ public class MalService {
     }
 
     final List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {
-        final var response = restClient.get()
+        final var response = publicClient.get()
             .uri(uriBuilder -> uriBuilder.path("/anime")
                 .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
                 .queryParam("limit", limit)

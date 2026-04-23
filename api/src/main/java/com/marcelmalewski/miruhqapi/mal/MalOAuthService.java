@@ -1,5 +1,6 @@
 package com.marcelmalewski.miruhqapi.mal;
 
+import static com.marcelmalewski.miruhqapi.config.MalClientConfig.MAL_URL_BASE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDto;
@@ -12,13 +13,17 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class MalOAuthService {
+
+    private static final int MAX_STATES = 10_000;
     private static final String REDIRECT_URI = "http://localhost:8080/api/oauth/mal/callback";
 
     @Value("${mal.client-id}")
@@ -26,24 +31,34 @@ public class MalOAuthService {
     @Value("${mal.client-secret}")
     private String clientSecret;
 
-    // TODO zabezpieczyś się przed brakiem pamięci w mapie
     private final Map<String, StoredState> stateStore = new ConcurrentHashMap<>();
 
-    private final WebClient malWebClient;
+    private final RestClient malV1Client;
     private final MalTokenDtoMapper malTokenDtoMapper;
 
-    public MalOAuthService(WebClient malWebClient, MalTokenDtoMapper malTokenDtoMapper) {
-        this.malWebClient = malWebClient;
+    public MalOAuthService(RestClient malV1Client, MalTokenDtoMapper malTokenDtoMapper) {
+        this.malV1Client = malV1Client;
         this.malTokenDtoMapper = malTokenDtoMapper;
     }
 
     public String buildAuthorizationUrl() {
+        if (stateStore.size() >= MAX_STATES) {
+            cleanupExpiredStates();
+
+            if (stateStore.size() >= MAX_STATES) {
+                throw new ResponseStatusException(
+                    HttpStatus.TOO_MANY_REQUESTS,
+                    "Too many pending requests. Try again later."
+                );
+            }
+        }
+
         final var state = UUID.randomUUID().toString();
         final var codeVerifier = generateCodeVerifier();
 
         stateStore.put(state, new StoredState(codeVerifier, Instant.now()));
 
-        return "https://myanimelist.net/v1/oauth2/authorize"
+        return MAL_URL_BASE + "v1/oauth2/authorize"
             + "?response_type=code"
             + "&client_id=" + clientId
             + "&redirect_uri=" + REDIRECT_URI
@@ -76,16 +91,24 @@ public class MalOAuthService {
         body.add("redirect_uri", REDIRECT_URI);
         body.add("code_verifier", stored.codeVerifier());
 
-        final var token = malWebClient.post()
-            .uri("/v1/oauth2/token")
+        final var token = malV1Client.post()
+            .uri("/oauth2/token")
             .contentType(APPLICATION_FORM_URLENCODED)
-            .bodyValue(body)
+            .body(body)
             .retrieve()
-            .bodyToMono(MalTokenDtoRest.class)
-            .block();
+            .onStatus(HttpStatusCode::isError, (request, response) -> {
+                throw new ResponseStatusException(
+                    response.getStatusCode(),
+                    "MAL token exchange failed"
+                );
+            })
+            .body(MalTokenDtoRest.class);
+
         if (token == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
-                "Failed to retrieve access token from MAL");
+            throw new ResponseStatusException(
+                HttpStatus.BAD_GATEWAY,
+                "Failed to retrieve access token from MAL"
+            );
         }
 
         return this.malTokenDtoMapper.toMalTokenDto(token);
@@ -98,11 +121,34 @@ public class MalOAuthService {
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
 
-        return malWebClient.post()
-            .uri("/v1/oauth2/token")
-            .bodyValue(body)
+        final var token = malV1Client.post()
+            .uri("/oauth2/token")
+            .contentType(APPLICATION_FORM_URLENCODED)
+            .body(body)
             .retrieve()
-            .bodyToMono(MalTokenDto.class)
-            .block();
+            .onStatus(HttpStatusCode::isError, (request, response) -> {
+                throw new ResponseStatusException(
+                    response.getStatusCode(),
+                    "MAL token exchange failed"
+                );
+            })
+            .body(MalTokenDto.class);
+
+        if (token == null) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_GATEWAY,
+                "Failed to refresh token from MAL"
+            );
+        }
+        return token;
+    }
+
+    @Scheduled(fixedRate = 60_000)
+    public void cleanupExpiredStates() {
+        final var cutoff = Instant.now().minusSeconds(300);
+
+        stateStore.entrySet().removeIf(entry ->
+            entry.getValue().createdAt().isBefore(cutoff)
+        );
     }
 }
