@@ -110,7 +110,6 @@ public class MalOAuthService {
                 "Failed to retrieve access token from MAL"
             );
         }
-
         return this.malTokenDtoMapper.toMalTokenDto(token);
     }
 
@@ -132,7 +131,7 @@ public class MalOAuthService {
                     "MAL token exchange failed"
                 );
             })
-            .body(MalTokenDto.class);
+            .body(MalTokenDtoRest.class);
 
         if (token == null) {
             throw new ResponseStatusException(
@@ -140,8 +139,7 @@ public class MalOAuthService {
                 "Failed to refresh token from MAL"
             );
         }
-        System.out.println("Refresh token: " + token);
-        return token;
+        return this.malTokenDtoMapper.toMalTokenDto(token);
     }
 
     @Scheduled(fixedRate = 60_000)
