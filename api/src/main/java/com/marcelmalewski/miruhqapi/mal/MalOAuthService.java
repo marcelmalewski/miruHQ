@@ -140,6 +140,7 @@ public class MalOAuthService {
                 "Failed to refresh token from MAL"
             );
         }
+        System.out.println("Refresh token: " + token);
         return token;
     }
 

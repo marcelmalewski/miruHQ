@@ -8,33 +8,42 @@ import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDtoRest;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class MalService {
+    private boolean errorDone = false;
 
-    private final RestClient publicClient;
-    private final RestClient malPrincipalClient;
+    private final RestClient publicApiClient;
+    private final RestClient malApiPrincipalClient;
     private final AnimeDtoMapper animeDtoMapper;
 
-    public MalService(@Qualifier("malPublicClient") RestClient publicClient,
-        @Qualifier("malPrincipalClient") RestClient malPrincipalClient,
+    public MalService(@Qualifier("malApiPublicClient") RestClient publicApiClient,
+        @Qualifier("malApiPrincipalClient") RestClient malApiPrincipalClient,
         AnimeDtoMapper animeDtoMapper) {
-        this.publicClient = publicClient;
-        this.malPrincipalClient = malPrincipalClient;
+        this.publicApiClient = publicApiClient;
+        this.malApiPrincipalClient = malApiPrincipalClient;
         this.animeDtoMapper = animeDtoMapper;
     }
 
     PrincipalInfoDtoRest getPrincipalInfo(String token) {
-        return malPrincipalClient.get().uri(uriBuilder -> uriBuilder.path("/users/@me").build())
+        if (!errorDone) {
+            errorDone = true;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Test 401");
+        }
+
+
+        return malApiPrincipalClient.get().uri(uriBuilder -> uriBuilder.path("/users/@me").build())
             .header("Authorization", "Bearer " + token).retrieve()
             .body(PrincipalInfoDtoRest.class);
     }
 
     List<AnimeDto> findPrincipalAnimeList(String token, Integer limit, Integer offset,
         String status, String sortField) {
-        final var response = malPrincipalClient.get()
+        final var response = malApiPrincipalClient.get()
             .uri(uriBuilder -> uriBuilder.path("/users/@me/animelist")
                 .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
                 .queryParam("status", status)
@@ -50,7 +59,7 @@ public class MalService {
     }
 
     final List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {
-        final var response = publicClient.get()
+        final var response = publicApiClient.get()
             .uri(uriBuilder -> uriBuilder.path("/anime")
                 .queryParam("fields", AnimeDtoRest.DEFAULT_FIELDS)
                 .queryParam("limit", limit)
