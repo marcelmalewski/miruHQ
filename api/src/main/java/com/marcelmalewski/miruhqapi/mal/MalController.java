@@ -25,7 +25,7 @@ public class MalController {
 
     @GetMapping("/api/users/@me")
     public PrincipalInfoDtoRest getPrincipalInfo(@RequestHeader("Authorization") String authHeader) {
-        String token = extractToken(authHeader);
+        String token = MalOAuthService.extractToken(authHeader);
         return malService.getPrincipalInfo(token);
     }
 
@@ -37,7 +37,7 @@ public class MalController {
         @RequestParam String status,
         @RequestParam String sortField) {
 
-        String token = extractToken(authHeader);
+        String token = MalOAuthService.extractToken(authHeader);
         return malService.findPrincipalAnimeList(token, limit, offset, status, sortField);
     }
 
@@ -69,13 +69,6 @@ public class MalController {
         @RequestParam String state
     ) {
         return malOAuthService.exchangeCode(code, state);
-    }
-
-    private String extractToken(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Missing or invalid Authorization header");
-        }
-        return authHeader.substring(7); // remove "Bearer "
     }
 
     @PostMapping("/api/oauth/mal/refresh")

@@ -41,7 +41,7 @@ public class MalOAuthService {
         this.malTokenDtoMapper = malTokenDtoMapper;
     }
 
-    public String buildAuthorizationUrl() {
+    protected String buildAuthorizationUrl() {
         if (stateStore.size() >= MAX_STATES) {
             cleanupExpiredStates();
 
@@ -67,12 +67,12 @@ public class MalOAuthService {
             + "&code_challenge_method=plain";
     }
 
-    private String generateCodeVerifier() {
+    private static String generateCodeVerifier() {
         return UUID.randomUUID().toString().replace("-", "")
             + UUID.randomUUID().toString().replace("-", "");
     }
 
-    public MalTokenDto exchangeCode(String code, String state) {
+    protected MalTokenDto exchangeCode(String code, String state) {
         final var stored = stateStore.remove(state);
 
         if (stored == null) {
@@ -113,7 +113,7 @@ public class MalOAuthService {
         return this.malTokenDtoMapper.toMalTokenDto(token);
     }
 
-    public MalTokenDto refreshToken(String refreshToken) {
+    protected MalTokenDto refreshToken(String refreshToken) {
         final var body = new LinkedMultiValueMap<String, String>();
         body.add("grant_type", "refresh_token");
         body.add("refresh_token", refreshToken);
@@ -143,11 +143,18 @@ public class MalOAuthService {
     }
 
     @Scheduled(fixedRate = 60_000)
-    public void cleanupExpiredStates() {
+    private void cleanupExpiredStates() {
         final var cutoff = Instant.now().minusSeconds(300);
 
         stateStore.entrySet().removeIf(entry ->
             entry.getValue().createdAt().isBefore(cutoff)
         );
+    }
+
+    protected static String extractToken(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Missing or invalid Authorization header");
+        }
+        return authHeader.substring(7); // remove "Bearer "
     }
 }
