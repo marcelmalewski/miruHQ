@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, from, Observable, switchMap } from 'rxjs';
 import { Anime, PrincipalInfo } from '../spec/mal-spec';
 
-// TODO Obsłużyć errory, pewnie jako notyfikacje hmm
 @Injectable({
   providedIn: 'root',
 })
@@ -31,7 +30,10 @@ export class MalService {
     return this.withAuthHeaders((headers) => this.http.get<PrincipalInfo>(url, { headers }));
   }
 
-  // TODO może backend jakoś oznaczy, że to konkretnie chodzi o wygaśnięty token
+  logout(): void {
+    void chrome.storage.local.remove(['malToken', 'malRefreshToken']);
+  }
+
   private withAuthHeaders<T>(requestFn: (headers: HttpHeaders) => Observable<T>): Observable<T> {
     return this.getToken$().pipe(
       switchMap((token) => {

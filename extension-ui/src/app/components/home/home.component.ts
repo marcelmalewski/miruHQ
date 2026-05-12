@@ -40,7 +40,8 @@ export class HomeComponent implements OnInit {
   protected prettySortFields: PrettyAnimeSortField[] = Object.values(PrettyAnimeSortFields);
   protected pageSizeOptions = [10, 25, 50];
 
-  protected currentMode: string = SearchMode.PRINCIPAL_ANIME;
+  protected loggedIn = false;
+  protected currentSearchMode: string = SearchMode.PRINCIPAL_ANIME;
   protected searchAnimeRequest: SearchAnimeRequest = {
     status: AnimeStatuses.PLAN_TO_WATCH,
     sortField: AnimeSortFields.ANIME_START_DATE,
@@ -74,10 +75,6 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  onTitleInputChange(titleInput: string) {
-    this.searchTitleInput$.next(titleInput);
-  }
-
   private searchByTitle(titleInput: string) {
     if (titleInput.length < 3) {
       this.animeList.set([]);
@@ -90,17 +87,21 @@ export class HomeComponent implements OnInit {
     this.loadPage();
   }
 
-  onModeKeyDown(event: KeyboardEvent, mode: string) {
+  protected onTitleInputChange(titleInput: string) {
+    this.searchTitleInput$.next(titleInput);
+  }
+
+  protected onModeKeyDown(event: KeyboardEvent, mode: string) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       this.switchMode(mode);
     }
   }
 
-  switchMode(mode: string) {
-    if (this.currentMode === mode) return;
-    this.currentMode = mode;
-    if (this.currentMode === SearchMode.PRINCIPAL_ANIME) {
+  protected switchMode(mode: string) {
+    if (this.currentSearchMode === mode) return;
+    this.currentSearchMode = mode;
+    if (this.currentSearchMode === SearchMode.PRINCIPAL_ANIME) {
       this.searchAnimeRequest = {
         status: AnimeStatuses.PLAN_TO_WATCH,
         sortField: AnimeSortFields.ANIME_START_DATE,
@@ -119,31 +120,31 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  onPageChange(page: number) {
+  protected onPageChange(page: number) {
     this.searchAnimeRequest.page = page;
     this.loadPage();
   }
 
-  onPageSizeChange(newLimit: number) {
+  protected onPageSizeChange(newLimit: number) {
     this.searchAnimeRequest.pageSize = newLimit;
     this.searchAnimeRequest.page = 1;
     this.loadPage();
   }
 
-  onStatusChange(prettyStatus: PrettyAnimeStatus) {
+  protected onStatusChange(prettyStatus: PrettyAnimeStatus) {
     this.searchAnimeRequest.status = PrettyAnimeStatusToStatus[prettyStatus];
     this.loadPage();
   }
 
-  onSortFieldChange(prettySortField: PrettyAnimeSortField) {
+  protected onSortFieldChange(prettySortField: PrettyAnimeSortField) {
     this.searchAnimeRequest.sortField = PrettyAnimeSortFieldToSortField[prettySortField];
     this.loadPage();
   }
 
-  loadPage() {
+  private loadPage() {
     const offset = (this.searchAnimeRequest.page - 1) * this.searchAnimeRequest.pageSize;
 
-    if (this.currentMode === SearchMode.PRINCIPAL_ANIME) {
+    if (this.currentSearchMode === SearchMode.PRINCIPAL_ANIME) {
       this.loadPrincipalAnimeList(
         this.searchAnimeRequest as SearchPrincipalAnimeListRequest,
         offset,
@@ -153,7 +154,10 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  loadPrincipalAnimeList(searchAnimeRequest: SearchPrincipalAnimeListRequest, offset: number) {
+  private loadPrincipalAnimeList(
+    searchAnimeRequest: SearchPrincipalAnimeListRequest,
+    offset: number,
+  ) {
     this.malService
       .findPrincipalAnimeList(
         searchAnimeRequest.pageSize,
@@ -167,7 +171,7 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  loadAllAnimeList(searchAnimeRequest: SearchAllAnimeRequest, offset: number) {
+  private loadAllAnimeList(searchAnimeRequest: SearchAllAnimeRequest, offset: number) {
     this.malService
       .findAnime(searchAnimeRequest.pageSize, offset, searchAnimeRequest.title)
       .subscribe((data) => {
@@ -176,11 +180,8 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  onAuthenticate() {
-    window.open('http://localhost:4200', '_blank');
-  }
-
-  calculateEstimatedEndDateWithDays(startDate: string, numEpisodes: number): string {
+  // TODO czemu to jest na froncie?
+  protected calculateEstimatedEndDateWithDays(startDate: string, numEpisodes: number): string {
     const startDateParts = startDate.split('-');
     if (startDateParts.length < 3 || numEpisodes === 0) {
       return 'Unknown';
@@ -204,17 +205,26 @@ export class HomeComponent implements OnInit {
 
     return diffDays < 0 ? `Finished` : `${endDateStr} (${diffDays} days remaining)`;
   }
-  preparePrincipalInfoDetailsUrl(principalInfo: PrincipalInfo) {
+
+  protected preparePrincipalInfoDetailsUrl(principalInfo: PrincipalInfo) {
     return `https://myanimelist.net/profile/${principalInfo.name}`;
   }
 
-  prepareAnimeDetailsUrl(anime: Anime): string {
+  protected prepareAnimeDetailsUrl(anime: Anime): string {
     return `https://myanimelist.net/anime/${anime.id}`;
   }
 
-  truncate(text: string): string {
+  protected truncate(text: string): string {
     const maxLength = 30;
     if (!text) return '';
     return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
+  }
+
+  protected onAuthenticate() {
+    window.open('http://localhost:4200', '_blank');
+  }
+
+  protected onLogout() {
+    this.malService.logout();
   }
 }

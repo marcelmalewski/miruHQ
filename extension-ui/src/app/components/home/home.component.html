@@ -11,13 +11,15 @@
         >
           Profile
         </a>
-        <button class="text-2xl text-black hover:underline flex justify-start items-center">
+        <button
+          class="text-2xl text-black hover:underline flex justify-start items-center"
+          (click)="onLogout()"
+        >
           Logout
         </button>
       </div>
     </div>
   }
-  <!--  dodac link do profile i guzik logout-->
   <!--    <div class="flex justify-center items-center">-->
   <!--      <button (click)="onAuthenticate()"-->
   <!--              class="text-2xl text-brand-primary font-medium hover:underline transition">-->
@@ -27,7 +29,7 @@
 
   <div class="flex flex-col flex-grow gap-5 p-5">
     <div class="flex justify-center gap-5 text-xl">
-      @if (currentMode === SearchMode.PRINCIPAL_ANIME) {
+      @if (currentSearchMode === SearchMode.PRINCIPAL_ANIME) {
         <select
           class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
           (change)="onStatusChange($any($event.target).value)"
@@ -55,8 +57,8 @@
       <button
         type="button"
         class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
-        [class.opacity-40]="currentMode !== SearchMode.PRINCIPAL_ANIME"
-        [class.border-black]="currentMode === SearchMode.PRINCIPAL_ANIME"
+        [class.opacity-40]="currentSearchMode !== SearchMode.PRINCIPAL_ANIME"
+        [class.border-black]="currentSearchMode === SearchMode.PRINCIPAL_ANIME"
         (click)="switchMode(SearchMode.PRINCIPAL_ANIME)"
         (keydown)="onModeKeyDown($event, SearchMode.PRINCIPAL_ANIME)"
       >
@@ -65,8 +67,8 @@
       <button
         type="button"
         class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
-        [class.opacity-40]="currentMode !== SearchMode.ALL_ANIME"
-        [class.border-black]="currentMode === SearchMode.ALL_ANIME"
+        [class.opacity-40]="currentSearchMode !== SearchMode.ALL_ANIME"
+        [class.border-black]="currentSearchMode === SearchMode.ALL_ANIME"
         (click)="switchMode(SearchMode.ALL_ANIME)"
         (keydown)="onModeKeyDown($event, SearchMode.ALL_ANIME)"
       >

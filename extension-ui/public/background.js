@@ -26,7 +26,7 @@ async function exchangeMalToken(code, state) {
   // noinspection JSUnresolvedVariable
   void chrome.storage.local.set({
     malToken: token.accessToken,
-    malRefresh: token.refreshToken,
+    malRefreshToken: token.refreshToken,
   });
 }
 
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function refreshMalToken() {
-  const { malRefresh } = await chrome.storage.local.get(['malRefresh']);
+  const { malRefreshToken } = await chrome.storage.local.get(['malRefreshToken']);
 
   try {
     const response = await fetch('http://localhost:8080/api/oauth/mal/refresh', {
@@ -47,7 +47,7 @@ async function refreshMalToken() {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        refreshToken: malRefresh,
+        refreshToken: malRefreshToken,
       }),
     });
 
@@ -55,7 +55,7 @@ async function refreshMalToken() {
 
     await chrome.storage.local.set({
       malToken: token.accessToken,
-      malRefresh: token.refreshToken,
+      malRefreshToken: token.refreshToken,
     });
 
     return {
