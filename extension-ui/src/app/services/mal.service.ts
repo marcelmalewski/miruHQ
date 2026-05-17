@@ -64,7 +64,7 @@ export class MalService {
     return from(
       new Promise<string>((resolve, reject) => {
         chrome.storage.local.get(['malToken'], (result) => {
-          const token = (result as Record<string, unknown>)['malToken'];
+          const token = result['malToken'];
 
           if (typeof token === 'string' && token.length > 0) {
             resolve(token);

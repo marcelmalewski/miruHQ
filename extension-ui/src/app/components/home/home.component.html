@@ -1,7 +1,9 @@
 <div class="screen-box flex gap-5">
-  @if (principalInfo()) {
-    <div class="h-full w-56 p-5 text-brand-primary flex flex-col gap-5 text-lg">
+  <div class="h-full w-56 p-5 text-brand-primary flex flex-col gap-5 text-lg">
+    @if (principalInfo()) {
+      <!--      TODO handle too long name-->
       <p class="text-3xl font-bold">{{ principalInfo()!.name }}</p>
+
       <div class="flex flex-col gap-1">
         <a
           [href]="preparePrincipalInfoDetailsUrl(principalInfo()!)"
@@ -18,18 +20,21 @@
           Logout
         </button>
       </div>
-    </div>
-  }
-  <!--    <div class="flex justify-center items-center">-->
-  <!--      <button (click)="onAuthenticate()"-->
-  <!--              class="text-2xl text-brand-primary font-medium hover:underline transition">-->
-  <!--        Authenticate-->
-  <!--      </button>-->
-  <!--    </div>-->
+    } @else {
+      <div class="flex flex-col">
+        <button
+          class="text-2xl text-black hover:underline flex justify-start items-center"
+          (click)="onAuthenticate()"
+        >
+          Authenticate
+        </button>
+      </div>
+    }
+  </div>
 
   <div class="flex flex-col flex-grow gap-5 p-5">
     <div class="flex justify-center gap-5 text-xl">
-      @if (currentSearchMode === SearchMode.PRINCIPAL_ANIME) {
+      @if (currentSearchMode() === SearchMode.PRINCIPAL_ANIME) {
         <select
           class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
           (change)="onStatusChange($any($event.target).value)"
@@ -54,21 +59,23 @@
         />
       }
 
+      @if (principalMode()) {
+        <button
+          type="button"
+          class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
+          [class.opacity-40]="currentSearchMode() !== SearchMode.PRINCIPAL_ANIME"
+          [class.border-black]="currentSearchMode() === SearchMode.PRINCIPAL_ANIME"
+          (click)="switchMode(SearchMode.PRINCIPAL_ANIME)"
+          (keydown)="onModeKeyDown($event, SearchMode.PRINCIPAL_ANIME)"
+        >
+          My anime
+        </button>
+      }
       <button
         type="button"
         class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
-        [class.opacity-40]="currentSearchMode !== SearchMode.PRINCIPAL_ANIME"
-        [class.border-black]="currentSearchMode === SearchMode.PRINCIPAL_ANIME"
-        (click)="switchMode(SearchMode.PRINCIPAL_ANIME)"
-        (keydown)="onModeKeyDown($event, SearchMode.PRINCIPAL_ANIME)"
-      >
-        My anime
-      </button>
-      <button
-        type="button"
-        class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
-        [class.opacity-40]="currentSearchMode !== SearchMode.ALL_ANIME"
-        [class.border-black]="currentSearchMode === SearchMode.ALL_ANIME"
+        [class.opacity-40]="currentSearchMode() !== SearchMode.ALL_ANIME"
+        [class.border-black]="currentSearchMode() === SearchMode.ALL_ANIME"
         (click)="switchMode(SearchMode.ALL_ANIME)"
         (keydown)="onModeKeyDown($event, SearchMode.ALL_ANIME)"
       >

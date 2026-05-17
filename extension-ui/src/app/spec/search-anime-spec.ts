@@ -13,10 +13,12 @@ export interface SearchAnimeRequest extends PaginatedRequest {
   sortField?: AnimeSortField;
 }
 
-export const SearchMode = {
+export const SearchModes = {
   PRINCIPAL_ANIME: 'PRINCIPAL_ANIME',
   ALL_ANIME: 'ALL_ANIME',
 } as const;
+type SearchModesKeys = keyof typeof SearchModes;
+export type SearchMode = (typeof SearchModes)[SearchModesKeys];
 
 export const AnimeStatuses = {
   PLAN_TO_WATCH: 'plan_to_watch',
