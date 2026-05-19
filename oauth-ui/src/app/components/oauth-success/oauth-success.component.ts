@@ -1,27 +1,40 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter, fromEvent, take } from 'rxjs';
 
 @Component({
-  selector: 'ouath-success',
+  selector: 'oauth-success',
   templateUrl: './oauth-success.component.html',
 })
 export class OauthSuccessComponent implements OnInit {
-  ngOnInit() {
-    const hash = new URLSearchParams(window.location.hash.substring(1));
+  private readonly destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    const hash = new URLSearchParams(globalThis.location.hash.substring(1));
     const code = hash.get('code');
     const state = hash.get('state');
-    history.replaceState(null, '', window.location.pathname);
+    history.replaceState(null, '', globalThis.location.pathname);
 
     if (!code || !state) {
-      console.error('Missing code/state'); // TODO make notification
+      console.error('Missing OAuth code/state');
       return;
     }
 
-    window.addEventListener('message', (event) => {
-      if (event.source !== window) return;
-
-      if (event.data?.type === 'CONTENT_READY') {
-        window.postMessage({ type: 'EXCHANGE_MAL_TOKEN', payload: { code, state } }, '*');
-      }
-    });
+    fromEvent<MessageEvent>(globalThis, 'message')
+      .pipe(
+        filter((event) => event.source === (globalThis as unknown as Window)),
+        filter((event) => event.data?.type === 'CONTENT_READY'),
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        globalThis.postMessage(
+          {
+            type: 'EXCHANGE_MAL_TOKEN',
+            payload: { code, state },
+          },
+          globalThis.location.origin,
+        );
+      });
   }
 }
