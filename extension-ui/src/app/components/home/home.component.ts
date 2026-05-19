@@ -18,7 +18,7 @@ import {
   SearchModes,
   SearchPrincipalAnimeListRequest,
 } from '../../spec/search-anime-spec';
-import { debounceTime, distinctUntilChanged, from, map, of, Subject, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, of, Subject, switchMap } from 'rxjs';
 
 @Component({
   selector: 'home',
@@ -33,24 +33,21 @@ export class HomeComponent implements OnInit {
   protected prettySortFields: PrettyAnimeSortField[] = Object.values(PrettyAnimeSortFields);
   protected pageSizeOptions = [10, 25, 50];
 
-  protected searchAnimeRequest: SearchAnimeRequest = {
+  private readonly initialSearchAnimeRequestForPrincipalAnimeSearchMode: SearchAnimeRequest = {
     status: AnimeStatuses.PLAN_TO_WATCH,
     sortField: AnimeSortFields.ANIME_START_DATE,
     page: 1,
     pageSize: this.pageSizeOptions[0],
-    title: '',
   };
+  protected searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
 
   private readonly searchTitleInput$ = new Subject<string>();
 
   protected readonly SearchMode = SearchModes;
 
-  protected readonly hasNextPage: WritableSignal<boolean> = signal(true);
+  protected readonly hasNextPage = signal(true);
 
-  protected readonly principalMode = toSignal(
-    from(chrome.storage.local.get(['malToken'])).pipe(map((result) => !!result['malToken'])),
-    { initialValue: false },
-  );
+  protected readonly principalMode = signal(false);
 
   protected readonly currentSearchMode: WritableSignal<SearchMode | null> = signal(null);
 
@@ -66,9 +63,17 @@ export class HomeComponent implements OnInit {
   protected readonly titleInputTooShort: WritableSignal<boolean> = signal<boolean>(false);
 
   ngOnInit(): void {
+    chrome.storage.local.get(['malToken'], (result) => {
+      this.principalMode.set(!!result['malToken']);
+      this.initSetup();
+    });
+  }
+
+  private initSetup() {
     this.currentSearchMode.set(
       this.principalMode() ? SearchModes.PRINCIPAL_ANIME : SearchModes.ALL_ANIME,
     );
+
     this.initialLoadPage();
     this.searchTitleInput$
       .pipe(takeUntilDestroyed(this.destroyRef), debounceTime(300), distinctUntilChanged())
@@ -116,12 +121,7 @@ export class HomeComponent implements OnInit {
     if (this.currentSearchMode() === mode) return;
     this.currentSearchMode.set(mode as SearchMode);
     if (this.currentSearchMode() === SearchModes.PRINCIPAL_ANIME) {
-      this.searchAnimeRequest = {
-        status: AnimeStatuses.PLAN_TO_WATCH,
-        sortField: AnimeSortFields.ANIME_START_DATE,
-        page: 1,
-        pageSize: this.pageSizeOptions[0],
-      };
+      this.searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
       this.loadPage();
     } else {
       this.searchAnimeRequest = {
@@ -235,7 +235,7 @@ export class HomeComponent implements OnInit {
   }
 
   protected onAuthenticate() {
-    window.open('http://localhost:4200', '_blank');
+    window.open('http://localhost:4200');
   }
 
   protected onLogout() {

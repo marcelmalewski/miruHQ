@@ -31,7 +31,9 @@ export class MalService {
   }
 
   logout(): void {
-    void chrome.storage.local.remove(['malToken', 'malRefreshToken']);
+    void chrome.storage.local
+      .remove(['malToken', 'malRefreshToken'])
+      .then(() => globalThis.location.reload());
   }
 
   private withAuthHeaders<T>(requestFn: (headers: HttpHeaders) => Observable<T>): Observable<T> {
