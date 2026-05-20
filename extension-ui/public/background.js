@@ -3,7 +3,7 @@ chrome.action.onClicked.addListener(() => {
   void chrome.tabs.create({ url });
 });
 
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener((message, _) => {
   if (message.type === 'EXCHANGE_MAL_TOKEN') {
     void exchangeMalToken(message.payload.code, message.payload.state);
   }
@@ -30,39 +30,37 @@ async function exchangeMalToken(code, state) {
   });
 }
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'REFRESH_MAL_TOKEN') {
-    refreshMalToken().then(sendResponse);
-    return true; // 🔥 keep channel open
+    return refreshMalToken();
   }
 });
 
 async function refreshMalToken() {
   const { malRefreshToken } = await chrome.storage.local.get(['malRefreshToken']);
 
-  try {
-    const response = await fetch('http://localhost:8080/api/oauth/mal/refresh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        refreshToken: malRefreshToken,
-      }),
-    });
+  const response = await fetch('http://localhost:8080/api/oauth/mal/refresh', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      refreshToken: malRefreshToken,
+    }),
+  });
 
-    const token = await response.json();
-
-    await chrome.storage.local.set({
-      malToken: token.accessToken,
-      malRefreshToken: token.refreshToken,
-    });
-
-    return {
-      success: true,
-      accessToken: token.accessToken,
-    };
-  } catch (e) {
-    return { success: false };
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
   }
+
+  const token = await response.json();
+  await chrome.storage.local.set({
+    malToken: token.accessToken,
+    malRefreshToken: token.refreshToken,
+  });
+
+  return {
+    success: true,
+    accessToken: token.accessToken,
+  };
 }
