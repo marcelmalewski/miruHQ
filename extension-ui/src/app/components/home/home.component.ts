@@ -194,28 +194,23 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  // TODO czemu to jest na froncie?
-  protected calculateEstimatedEndDateWithDays(startDate: string, numEpisodes: number): string {
-    const startDateParts = startDate.split('-');
+  protected calculateEstimatedEndDateWithDays(startDateStr: string, numEpisodes: number): string {
+    const startDateParts = startDateStr.split('-');
     if (startDateParts.length < 3 || numEpisodes === 0) {
       return 'Unknown';
     }
 
-    const start = new Date(`${startDate}T00:00:00Z`);
-    if (Number.isNaN(start.getTime())) {
-      return 'Invalid date';
-    }
-
-    const totalDays = numEpisodes * 7;
-    const end = new Date(start);
-    end.setUTCDate(end.getUTCDate() + totalDays);
+    const startDate = new Date(`${startDateStr}T00:00:00Z`);
+    const endDate = new Date(startDate);
+    const totalDays = (numEpisodes - 1) * 7;
+    endDate.setUTCDate(endDate.getUTCDate() + totalDays);
 
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
 
-    const diffMs = end.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-    const endDateStr = end.toISOString().slice(0, 10);
+    const diffMs = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24)) - 1;
+    const endDateStr = endDate.toISOString().slice(0, 10);
 
     return diffDays < 0 ? `Finished` : `${endDateStr} (${diffDays} days remaining)`;
   }
