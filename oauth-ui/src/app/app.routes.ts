@@ -3,6 +3,7 @@ import { OauthSuccessComponent } from './components/oauth-success/oauth-success.
 import { HomeComponent } from './components/home/home.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', redirectTo: 'oauth', pathMatch: 'full' },
+  { path: 'oauth', component: HomeComponent },
   { path: 'oauth-success', component: OauthSuccessComponent },
 ];

@@ -4,3 +4,7 @@ spring:
 mal:
   client-id: ${CLIENT_ID}
   client-secret: ${CLIENT_SECRET}
+cors:
+  allowed-origins:
+    - http://localhost:4200
+    - chrome-extension://eoeekjllkilpkcafhodpaicjihccfofj

@@ -230,7 +230,7 @@ export class HomeComponent implements OnInit {
   }
 
   protected onAuthenticate() {
-    window.open('http://localhost:4200');
+    window.open('http://localhost:4200/oauth');
   }
 
   protected onLogout() {
