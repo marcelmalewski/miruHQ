@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "personal-website": {
+    "oauth-ui": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -55,10 +55,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "personal-website:build:production"
+              "buildTarget": "oauth-ui:build:production"
             },
             "development": {
-              "buildTarget": "personal-website:build:development"
+              "buildTarget": "oauth-ui:build:development"
             }
           },
           "defaultConfiguration": "development"
