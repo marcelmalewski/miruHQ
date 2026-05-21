@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+cors:
+  allowed-origins:
+    - https://miruhq.com
+    - chrome-extension://eoeekjllkilpkcafhodpaicjihccfofj
+
+logging:
+  level:
+    root: INFO

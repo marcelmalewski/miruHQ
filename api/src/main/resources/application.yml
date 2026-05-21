@@ -1,10 +1,32 @@
 spring:
   application:
     name: api
+  mvc:
+    async:
+      request-timeout: 10s
+    problemdetails:
+      enabled: true
+  threads:
+    virtual:
+      enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  shutdown: graceful
+  compression:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  endpoint:
+    health:
+      show-details: never
+
 mal:
   client-id: ${CLIENT_ID}
   client-secret: ${CLIENT_SECRET}
-cors:
-  allowed-origins:
-    - http://localhost:4200
-    - chrome-extension://eoeekjllkilpkcafhodpaicjihccfofj

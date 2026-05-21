@@ -18,14 +18,19 @@ repositories {
     mavenCentral()
 }
 
+val mapstructVersion = "1.6.3"
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.mapstruct:mapstruct:1.5.3.Final")
-    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
-    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.mapstruct:mapstruct:$mapstructVersion")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+    options.compilerArgs.add("-parameters")
+}
+
+tasks.jar {
+    enabled = false
 }

@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+cors:
+  allowed-origins:
+    - http://localhost:4200
+    - chrome-extension://eoeekjllkilpkcafhodpaicjihccfofj
+
+logging:
+  level:
+    root: INFO
+    com.marcelmalewski.miruhqapi: DEBUG
