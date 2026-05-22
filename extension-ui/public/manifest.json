@@ -25,7 +25,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://localhost:4200/*"],
+      "matches": ["https://www.miruhq.org/oauth-success*"],
       "js": ["content.js"]
     }
   ]
