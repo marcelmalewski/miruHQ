@@ -1,4 +1,4 @@
-FROM gradle:8.14-jdk21 AS build
+FROM gradle:9.5.1-jdk21 AS build
 
 WORKDIR /api
 
@@ -10,6 +10,8 @@ RUN ./gradlew bootJar --no-daemon
 FROM eclipse-temurin:21-jre
 
 WORKDIR /api
+
+ENV SPRING_PROFILES_ACTIVE=prod
 
 COPY --from=build /api/build/libs/*.jar api.jar
 
