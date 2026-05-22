@@ -57,7 +57,7 @@ public class MalController {
     public void callback(@RequestParam String code, @RequestParam String state,
         HttpServletResponse response) throws IOException {
 
-        String redirectUrl = "http://localhost:4200/oauth-success#" +
+        String redirectUrl = "https://www.miruhq.org/oauth-success#" +
             "code=" + code +
             "&state=" + state;
         response.sendRedirect(redirectUrl);

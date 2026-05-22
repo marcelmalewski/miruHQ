@@ -24,7 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class MalOAuthService {
 
     private static final int MAX_STATES = 10_000;
-    private static final String REDIRECT_URI = "http://localhost:8080/api/oauth/mal/callback";
+    private static final String REDIRECT_URI = "https://miruhq-api.onrender.com/api/oauth/mal/callback";
 
     @Value("${mal.client-id}")
     private String clientId;

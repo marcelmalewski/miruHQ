@@ -8,7 +8,7 @@ import { Anime, PrincipalInfo } from '../spec/mal-spec';
 })
 export class MalService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api';
+  private readonly baseUrl = 'https://miruhq-api.onrender.com/api';
 
   findAnime(pageSize: number, offset: number, title: string): Observable<Anime[]> {
     const url = `${this.baseUrl}/anime?limit=${pageSize}&offset=${offset}&title=${title}`;
