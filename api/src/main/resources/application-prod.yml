@@ -6,7 +6,7 @@ spring:
 cors:
   allowed-origins:
     - https://miruhq.com
-    - chrome-extension://eoeekjllkilpkcafhodpaicjihccfofj
+    - chrome-extension://pikhegpinigblbcgdpahppenpinfohom
 
 logging:
   level:
