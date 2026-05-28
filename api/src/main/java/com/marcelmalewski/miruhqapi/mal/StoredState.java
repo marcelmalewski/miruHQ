@@ -1,4 +1,4 @@
-package com.marcelmalewski.miruhqapi.mal.dto;
+package com.marcelmalewski.miruhqapi.mal;
 
 import java.time.Instant;
 

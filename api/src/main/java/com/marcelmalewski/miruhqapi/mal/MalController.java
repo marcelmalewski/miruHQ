@@ -2,7 +2,7 @@ package com.marcelmalewski.miruhqapi.mal;
 
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDto;
-import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDtoRest;
+import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDto;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +24,7 @@ public class MalController {
     }
 
     @GetMapping("/api/users/@me")
-    public PrincipalInfoDtoRest getPrincipalInfo(@RequestHeader("Authorization") String authHeader) {
+    public PrincipalInfoDto getPrincipalInfo(@RequestHeader("Authorization") String authHeader) {
         String token = MalOAuthService.extractToken(authHeader);
         return malService.getPrincipalInfo(token);
     }
@@ -38,6 +38,21 @@ public class MalController {
         @RequestParam String sortField) {
 
         String token = MalOAuthService.extractToken(authHeader);
+
+        malService.findPrincipalAnimeListWithMissingTitles(token);
+        return malService.findPrincipalAnimeList(token, limit, offset, status, sortField);
+    }
+
+    @GetMapping("/api/users/@me/missing-titles")
+    public List<AnimeDto> findPrincipalAnimeListWithMissingTitles(
+        @RequestHeader("Authorization") String authHeader,
+        @RequestParam Integer limit,
+        @RequestParam Integer offset,
+        @RequestParam String status,
+        @RequestParam String sortField) {
+
+        String token = MalOAuthService.extractToken(authHeader);
+//        return malService.findPrincipalAnimeListWithMissingTitles(token, limit, offset, status, sortField);
         return malService.findPrincipalAnimeList(token, limit, offset, status, sortField);
     }
 
@@ -57,7 +72,10 @@ public class MalController {
     public void callback(@RequestParam String code, @RequestParam String state,
         HttpServletResponse response) throws IOException {
 
-        String redirectUrl = "https://www.miruhq.org/oauth-success#" +
+//        String redirectUrl = "https://www.miruhq.org/oauth-success#" +
+//            "code=" + code +
+//            "&state=" + state;
+        String redirectUrl = "http://localhost:4200/oauth-success#" +
             "code=" + code +
             "&state=" + state;
         response.sendRedirect(redirectUrl);

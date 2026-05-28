@@ -33,7 +33,7 @@
 
   <div class="flex flex-col flex-grow gap-5 p-5">
     <div class="flex justify-center gap-5 text-xl">
-      @if (currentSearchMode() === SearchMode.PRINCIPAL_ANIME) {
+      @if (currentSearchMode() !== SearchMode.ALL_ANIME) {
         <select
           class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
           (change)="onStatusChange($any($event.target).value)"
@@ -80,6 +80,16 @@
       >
         All anime
       </button>
+      <button
+        type="button"
+        class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
+        [class.opacity-40]="currentSearchMode() !== SearchMode.MISSING_TITLES"
+        [class.border-black]="currentSearchMode() === SearchMode.MISSING_TITLES"
+        (click)="switchMode(SearchMode.MISSING_TITLES)"
+        (keydown)="onModeKeyDown($event, SearchMode.MISSING_TITLES)"
+      >
+        Missing titles
+      </button>
     </div>
     @if (titleInputTooShort()) {
       <div class="flex-grow flex justify-start items-center flex-col gap-5">
@@ -91,16 +101,17 @@
       <div
         class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,24rem)] place-content-start"
       >
-        @for (anime of animeList(); track anime.id) {
+        @for (anime of animeList(); track anime.id; let i = $index) {
           <div
             class="w-96 min-h-60 h-60 bg-white rounded-xl flex flex-row overflow-hidden shadow-lg"
           >
             <img
-              ngSrc="{{ anime.mainPicture.medium }}"
+              [ngSrc]="anime.mainPicture.medium"
               [alt]="anime.title"
               width="160"
               height="240"
               class="h-full w-2/5 object-cover"
+              [priority]="i === 0"
             />
 
             <div class="p-5 w-3/5 flex flex-col justify-between text-sm">

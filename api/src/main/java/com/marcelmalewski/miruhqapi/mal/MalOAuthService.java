@@ -6,7 +6,6 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDto;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDtoRest;
-import com.marcelmalewski.miruhqapi.mal.dto.StoredState;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class MalOAuthService {
 
     private static final int MAX_STATES = 10_000;
-    private static final String REDIRECT_URI = "https://miruhq-api.onrender.com/api/oauth/mal/callback";
+//    private static final String REDIRECT_URI = "https://miruhq-api.onrender.com/api/oauth/mal/callback";
+    private static final String REDIRECT_URI = "http://localhost:8080/api/oauth/mal/callback";
 
     @Value("${mal.client-id}")
     private String clientId;

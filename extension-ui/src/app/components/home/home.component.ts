@@ -119,18 +119,24 @@ export class HomeComponent implements OnInit {
 
   protected switchMode(mode: string) {
     if (this.currentSearchMode() === mode) return;
+
     this.currentSearchMode.set(mode as SearchMode);
     if (this.currentSearchMode() === SearchModes.PRINCIPAL_ANIME) {
+      this.titleInputTooShort.set(false);
       this.searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
       this.loadPage();
-    } else {
+    } else if (this.currentSearchMode() === SearchModes.ALL_ANIME) {
+      this.handleTitleInputTooShort();
       this.searchAnimeRequest = {
         title: '',
         page: 1,
         pageSize: this.pageSizeOptions[0],
       };
-      this.animeList.set([]);
-      this.hasNextPage.set(false);
+    } else {
+      console.log('test');
+      this.titleInputTooShort.set(false);
+      this.searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
+      this.loadPage();
     }
   }
 
@@ -163,8 +169,14 @@ export class HomeComponent implements OnInit {
         this.searchAnimeRequest as SearchPrincipalAnimeListRequest,
         offset,
       );
-    } else {
+    } else if (this.currentSearchMode() === SearchModes.ALL_ANIME) {
       this.loadAllAnimeList(this.searchAnimeRequest as SearchAllAnimeRequest, offset);
+    } else {
+      console.log('test');
+      this.loadPrincipalAnimeList(
+        this.searchAnimeRequest as SearchPrincipalAnimeListRequest,
+        offset,
+      );
     }
   }
 
@@ -230,7 +242,8 @@ export class HomeComponent implements OnInit {
   }
 
   protected onAuthenticate() {
-    window.open('https://www.miruhq.org/oauth');
+    // window.open('https://www.miruhq.org/oauth');
+    window.open('http://localhost:4200/oauth');
   }
 
   protected onLogout() {

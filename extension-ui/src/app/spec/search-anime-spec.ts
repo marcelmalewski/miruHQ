@@ -16,6 +16,7 @@ export interface SearchAnimeRequest extends PaginatedRequest {
 export const SearchModes = {
   PRINCIPAL_ANIME: 'PRINCIPAL_ANIME',
   ALL_ANIME: 'ALL_ANIME',
+  MISSING_TITLES: 'MISSING_TITLES',
 } as const;
 type SearchModesKeys = keyof typeof SearchModes;
 export type SearchMode = (typeof SearchModes)[SearchModesKeys];

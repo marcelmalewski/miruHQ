@@ -1,6 +1,8 @@
 package com.marcelmalewski.miruhqapi.mal.dto;
 
+import java.util.List;
+
 public record AnimeDto(Long id, String title, String startDate, Integer numEpisodes,
-                       MainPictureDtoRest mainPicture) {
+                       MainPictureDto mainPicture, List<String> relatedAnime) {
 
 }
