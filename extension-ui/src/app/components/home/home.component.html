@@ -33,37 +33,11 @@
 
   <div class="flex flex-col flex-grow gap-5 p-5">
     <div class="flex justify-center gap-5 text-xl">
-      @if (currentSearchMode() !== SearchMode.ALL_ANIME) {
-        <select
-          class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
-          (change)="onStatusChange($any($event.target).value)"
-        >
-          @for (status of prettyStatuses; track status) {
-            <option>{{ status }}</option>
-          }
-        </select>
-        <select
-          class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
-          (change)="onSortFieldChange($any($event.target).value)"
-        >
-          @for (sortField of prettySortFields; track sortField) {
-            <option>{{ sortField }}</option>
-          }
-        </select>
-      } @else {
-        <input
-          type="text"
-          class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
-          (input)="onTitleInputChange($any($event.target).value)"
-        />
-      }
-
       @if (principalMode()) {
         <button
           type="button"
-          class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
-          [class.opacity-40]="currentSearchMode() !== SearchMode.PRINCIPAL_ANIME"
-          [class.border-black]="currentSearchMode() === SearchMode.PRINCIPAL_ANIME"
+          class="px-3 py-1 border-2 border-black rounded cursor-pointer transition-opacity"
+          [class.opacity-50]="currentSearchMode() !== SearchMode.PRINCIPAL_ANIME"
           (click)="switchMode(SearchMode.PRINCIPAL_ANIME)"
           (keydown)="onModeKeyDown($event, SearchMode.PRINCIPAL_ANIME)"
         >
@@ -72,25 +46,66 @@
       }
       <button
         type="button"
-        class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
-        [class.opacity-40]="currentSearchMode() !== SearchMode.ALL_ANIME"
-        [class.border-black]="currentSearchMode() === SearchMode.ALL_ANIME"
+        class="px-3 py-1 border-2 border-black rounded cursor-pointer transition-opacity"
+        [class.opacity-50]="currentSearchMode() !== SearchMode.ALL_ANIME"
         (click)="switchMode(SearchMode.ALL_ANIME)"
         (keydown)="onModeKeyDown($event, SearchMode.ALL_ANIME)"
       >
         All anime
       </button>
-      <button
-        type="button"
-        class="px-3 py-1 border-2 rounded cursor-pointer transition-opacity bg-transparent"
-        [class.opacity-40]="currentSearchMode() !== SearchMode.MISSING_TITLES"
-        [class.border-black]="currentSearchMode() === SearchMode.MISSING_TITLES"
-        (click)="switchMode(SearchMode.MISSING_TITLES)"
-        (keydown)="onModeKeyDown($event, SearchMode.MISSING_TITLES)"
-      >
-        Missing titles
-      </button>
+      @if (principalMode()) {
+        <button
+          type="button"
+          class="px-3 py-1 border-2 border-black rounded cursor-pointer transition-opacity"
+          [class.opacity-50]="currentSearchMode() !== SearchMode.MISSING_TITLES"
+          (click)="switchMode(SearchMode.MISSING_TITLES)"
+          (keydown)="onModeKeyDown($event, SearchMode.MISSING_TITLES)"
+        >
+          Missing titles
+        </button>
+      }
     </div>
+
+    <div class="flex justify-center gap-5 text-xl">
+      @if (
+        currentSearchMode() === SearchMode.PRINCIPAL_ANIME ||
+        currentSearchMode() === SearchMode.MISSING_TITLES
+      ) {
+        <select
+          class="border-2 px-3 py-1 border-black rounded-none focus:outline-none focus:ring-0"
+          (change)="onStatusChange($any($event.target).value)"
+          [value]="selectedStatus()"
+        >
+          @for (status of prettyStatuses; track status) {
+            <option>{{ status }}</option>
+          }
+        </select>
+        <select
+          class="border-2 px-3 py-1 border-black rounded-none focus:outline-none focus:ring-0"
+          (change)="onSortFieldChange($any($event.target).value)"
+        >
+          @for (sortField of prettySortFields; track sortField) {
+            <option>{{ sortField }}</option>
+          }
+        </select>
+        @if (currentSearchMode() === SearchMode.MISSING_TITLES) {
+          <button
+            type="button"
+            class="px-3 py-1 border-2 border-black rounded cursor-pointer transition-opacity"
+            [class.opacity-50]="currentSearchMode() !== SearchMode.MISSING_TITLES"
+          >
+            Refresh
+          </button>
+        }
+      } @else {
+        <input
+          type="text"
+          class="border-2 px-3 py-1 border-black rounded-none focus:outline-none focus:ring-0"
+          (input)="onTitleInputChange($any($event.target).value)"
+        />
+      }
+    </div>
+
     @if (titleInputTooShort()) {
       <div class="flex-grow flex justify-start items-center flex-col gap-5">
         <div class="mt-5 px-3 py-1 border-2 border-red-500 bg-red-50 text-red-700 text-xl">
@@ -161,14 +176,14 @@
         }
       </select>
       <button
-        class="px-3 py-1 border-2 border-black disabled:opacity-50"
+        class="px-3 py-1 border-2 border-black rounded disabled:opacity-50"
         [disabled]="searchAnimeRequest.page === 1"
         (click)="onPageChange(searchAnimeRequest.page - 1)"
       >
         Prev
       </button>
       <button
-        class="px-3 py-1 border-2 border-black disabled:opacity-50"
+        class="px-3 py-1 border-2 border-black rounded disabled:opacity-50"
         [disabled]="!hasNextPage()"
         (click)="onPageChange(searchAnimeRequest.page + 1)"
       >

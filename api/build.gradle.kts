@@ -20,6 +20,8 @@ repositories {
 
 val mapstructVersion = "1.6.3"
 dependencies {
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
     implementation("org.springframework.boot:spring-boot-starter-actuator")

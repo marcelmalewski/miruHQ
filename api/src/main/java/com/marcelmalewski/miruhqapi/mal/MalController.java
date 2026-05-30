@@ -38,13 +38,11 @@ public class MalController {
         @RequestParam String sortField) {
 
         String token = MalOAuthService.extractToken(authHeader);
-
-        malService.findPrincipalAnimeListWithMissingTitles(token);
         return malService.findPrincipalAnimeList(token, limit, offset, status, sortField);
     }
 
     @GetMapping("/api/users/@me/missing-titles")
-    public List<AnimeDto> findPrincipalAnimeListWithMissingTitles(
+    public List<AnimeDto> findPrincipalMissingTitles(
         @RequestHeader("Authorization") String authHeader,
         @RequestParam Integer limit,
         @RequestParam Integer offset,
@@ -52,8 +50,7 @@ public class MalController {
         @RequestParam String sortField) {
 
         String token = MalOAuthService.extractToken(authHeader);
-//        return malService.findPrincipalAnimeListWithMissingTitles(token, limit, offset, status, sortField);
-        return malService.findPrincipalAnimeList(token, limit, offset, status, sortField);
+        return malService.findPrincipalMissingTitles(token, limit, offset, status, sortField);
     }
 
     @GetMapping("/api/anime")

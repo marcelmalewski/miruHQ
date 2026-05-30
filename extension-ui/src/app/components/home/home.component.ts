@@ -6,6 +6,7 @@ import { Anime, PrincipalInfo } from '../../spec/mal-spec';
 import {
   AnimeSortFields,
   AnimeStatuses,
+  AnimeStatusToPrettyStatus,
   PrettyAnimeSortField,
   PrettyAnimeSortFields,
   PrettyAnimeSortFieldToSortField,
@@ -39,11 +40,21 @@ export class HomeComponent implements OnInit {
     page: 1,
     pageSize: this.pageSizeOptions[0],
   };
+  private readonly initialSearchAnimeRequestForMissingTitlesSearchMode: SearchAnimeRequest = {
+    status: AnimeStatuses.COMPLETED,
+    sortField: AnimeSortFields.ANIME_START_DATE,
+    page: 1,
+    pageSize: this.pageSizeOptions[0],
+  };
   protected searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
 
   private readonly searchTitleInput$ = new Subject<string>();
 
   protected readonly SearchMode = SearchModes;
+
+  protected readonly selectedStatus: WritableSignal<PrettyAnimeStatus> = signal(
+    PrettyAnimeStatuses.PLAN_TO_WATCH,
+  );
 
   protected readonly hasNextPage = signal(true);
 
@@ -121,8 +132,10 @@ export class HomeComponent implements OnInit {
     if (this.currentSearchMode() === mode) return;
 
     this.currentSearchMode.set(mode as SearchMode);
+
     if (this.currentSearchMode() === SearchModes.PRINCIPAL_ANIME) {
       this.titleInputTooShort.set(false);
+      this.selectedStatus.set(AnimeStatusToPrettyStatus[AnimeStatuses.PLAN_TO_WATCH]);
       this.searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
       this.loadPage();
     } else if (this.currentSearchMode() === SearchModes.ALL_ANIME) {
@@ -133,9 +146,9 @@ export class HomeComponent implements OnInit {
         pageSize: this.pageSizeOptions[0],
       };
     } else {
-      console.log('test');
       this.titleInputTooShort.set(false);
-      this.searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
+      this.selectedStatus.set(AnimeStatusToPrettyStatus[AnimeStatuses.COMPLETED]);
+      this.searchAnimeRequest = this.initialSearchAnimeRequestForMissingTitlesSearchMode;
       this.loadPage();
     }
   }
@@ -172,8 +185,7 @@ export class HomeComponent implements OnInit {
     } else if (this.currentSearchMode() === SearchModes.ALL_ANIME) {
       this.loadAllAnimeList(this.searchAnimeRequest as SearchAllAnimeRequest, offset);
     } else {
-      console.log('test');
-      this.loadPrincipalAnimeList(
+      this.loadPrincipalMissingTitles(
         this.searchAnimeRequest as SearchPrincipalAnimeListRequest,
         offset,
       );
@@ -186,6 +198,23 @@ export class HomeComponent implements OnInit {
   ) {
     this.malService
       .findPrincipalAnimeList(
+        searchAnimeRequest.pageSize,
+        offset,
+        searchAnimeRequest.status,
+        searchAnimeRequest.sortField,
+      )
+      .subscribe((data) => {
+        this.animeList.set(data);
+        this.hasNextPage.set(data.length === this.searchAnimeRequest.pageSize);
+      });
+  }
+
+  private loadPrincipalMissingTitles(
+    searchAnimeRequest: SearchPrincipalAnimeListRequest,
+    offset: number,
+  ) {
+    this.malService
+      .findPrincipalMissingTitles(
         searchAnimeRequest.pageSize,
         offset,
         searchAnimeRequest.status,

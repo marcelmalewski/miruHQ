@@ -49,6 +49,14 @@ export const PrettyAnimeStatusToStatus: Record<PrettyAnimeStatus, AnimeStatus> =
   Dropped: AnimeStatuses.DROPPED,
 };
 
+export const AnimeStatusToPrettyStatus: Record<AnimeStatus, PrettyAnimeStatus> = {
+  plan_to_watch: PrettyAnimeStatuses.PLAN_TO_WATCH,
+  watching: PrettyAnimeStatuses.WATCHING,
+  completed: PrettyAnimeStatuses.COMPLETED,
+  on_hold: PrettyAnimeStatuses.ON_HOLD,
+  dropped: PrettyAnimeStatuses.DROPPED,
+};
+
 export const AnimeSortFields = {
   LIST_SCORE: 'list_score',
   LIST_UPDATED_AT: 'list_updated_at',

@@ -11,6 +11,13 @@ spring:
       enabled: true
   lifecycle:
     timeout-per-shutdown-phase: 20s
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=5000,expireAfterAccess=24h
+    cache-names:
+      - anime-relations
+      - principal-anime
 
 server:
   port: ${PORT:8080}

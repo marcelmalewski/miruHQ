@@ -1,15 +1,15 @@
 package com.marcelmalewski.miruhqapi.mal;
 
-import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeDetailsDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoMapper;
+import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDto;
+import com.marcelmalewski.miruhqapi.mal.dto.RelatedAnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeListDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeListNodeDtoRest;
-import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDto;
-import com.marcelmalewski.miruhqapi.mal.dtorest.RelatedAnimeDtoRest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -20,13 +20,18 @@ public class MalService {
     private final RestClient publicApiClient;
     private final RestClient malApiPrincipalClient;
     private final AnimeDtoMapper animeDtoMapper;
+    private final MalAnimeRelationsService malAnimeRelationsService;
+    private final MalPrincipalAnimeService malPrincipalAnimeService;
 
     public MalService(@Qualifier("malApiPublicClient") RestClient publicApiClient,
         @Qualifier("malApiPrincipalClient") RestClient malApiPrincipalClient,
-        AnimeDtoMapper animeDtoMapper) {
+        AnimeDtoMapper animeDtoMapper, MalAnimeRelationsService malAnimeRelationsService,
+        MalPrincipalAnimeService malPrincipalAnimeService) {
         this.publicApiClient = publicApiClient;
         this.malApiPrincipalClient = malApiPrincipalClient;
         this.animeDtoMapper = animeDtoMapper;
+        this.malAnimeRelationsService = malAnimeRelationsService;
+        this.malPrincipalAnimeService = malPrincipalAnimeService;
     }
 
     protected PrincipalInfoDto getPrincipalInfo(String token) {
@@ -52,64 +57,60 @@ public class MalService {
         return mapAnimeListDto(response);
     }
 
-
-    protected List<AnimeDto> findPrincipalAnimeListWithMissingTitles(
-        String token
+    protected List<AnimeDto> findPrincipalMissingTitles(
+        String token,
+        int limit,
+        int offset,
+        String status,
+        String sortField
     ) {
-        final List<AnimeDto> principalAnimeList = getAllPrincipalAnime(token);
-        final var principalAnimeIds = principalAnimeList.stream()
+        final var principalInfo = getPrincipalInfo(token);
+        final List<AnimeDto> principalAnimeList = malPrincipalAnimeService.getAllPrincipalAnime(
+            principalInfo.name(), token, status, sortField);
+        final var principalAnimeListIds = principalAnimeList.stream()
             .map(AnimeDto::id)
-            .collect(java.util.stream.Collectors.toSet());
+            .collect(Collectors.toSet());
 
-        return principalAnimeList.stream()
-            .map(anime ->
-                publicApiClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                        .path("/anime/{id}")
-                        .queryParam("fields", "related_anime")
-                        .build(anime.id()))
-                    .retrieve()
-                    .body(AnimeDetailsDtoRest.class)
-            )
-            .filter(Objects::nonNull)
-            .flatMap(animeDetails -> animeDetails.relatedAnime().stream())
-            .map(RelatedAnimeDtoRest::node)
-            .filter(node -> !principalAnimeIds.contains(node.id()))
-            .map(animeDtoMapper::toAnimeDto)
-            .toList();
-    }
+        final List<AnimeDto> animeWithMissingTitles = new ArrayList<>();
+        for (AnimeDto animeDto : principalAnimeList) {
+            final var animeDetailsDtoRest = malAnimeRelationsService.findAnimeRelations(
+                animeDto.id());
 
-    private List<AnimeDto> getAllPrincipalAnime(
-        String token
-    ) {
-        final var allPrincipalAnime = new ArrayList<AnimeDto>();
-        final int limit = 1000;
-        int offset = 0;
-
-        while (true) {
-            int currentOffset = offset;
-            final var response = malApiPrincipalClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/users/@me/animelist")
-                    .queryParam("fields", "id")
-                    .queryParam("limit", limit)
-                    .queryParam("offset", currentOffset)
-                    .build())
-                .header("Authorization", "Bearer " + token)
-                .retrieve()
-                .body(AnimeListDtoRest.class);
-
-            final List<AnimeDto> animeListDto = mapAnimeListDto(response);
-            allPrincipalAnime.addAll(animeListDto);
-            if (animeListDto.size() < limit) {
-                break;
+            final List<RelatedAnimeDto> missingTitles = Objects.requireNonNull(animeDetailsDtoRest)
+                .relatedAnime().stream()
+                .filter(relatedAnimeDtoRest -> !principalAnimeListIds.contains(
+                    relatedAnimeDtoRest.node().id()))
+                .map(relatedAnimeDtoRest -> new RelatedAnimeDto(
+                    relatedAnimeDtoRest.node().title(),
+                    relatedAnimeDtoRest.node().mainPicture(),
+                    relatedAnimeDtoRest.relationTypeFormatted()
+                ))
+                .toList();
+            if (missingTitles.isEmpty()) {
+                continue;
             }
 
-            offset += limit;
+            animeWithMissingTitles.add(
+                new AnimeDto(
+                    animeDto.id(),
+                    animeDto.title(),
+                    animeDto.startDate(),
+                    animeDto.numEpisodes(),
+                    animeDto.mainPicture(),
+                    missingTitles
+                )
+            );
+
+            if (animeWithMissingTitles.size() >= offset + limit) {
+                break;
+            }
         }
 
-        return allPrincipalAnime;
+        return animeWithMissingTitles.stream()
+            .skip(offset)
+            .limit(limit)
+            .toList();
     }
-
 
     protected List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {
         final var response = publicApiClient.get()

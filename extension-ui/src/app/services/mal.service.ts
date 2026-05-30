@@ -26,6 +26,16 @@ export class MalService {
     return this.withAuthHeaders((headers) => this.http.get<Anime[]>(url, { headers }));
   }
 
+  findPrincipalMissingTitles(
+    pageSize: number,
+    offset: number,
+    statusOption: string,
+    sortField: string,
+  ): Observable<Anime[]> {
+    const url = `${this.baseUrl}/users/@me/missing-titles?limit=${pageSize}&offset=${offset}&status=${statusOption}&sortField=${sortField}`;
+    return this.withAuthHeaders((headers) => this.http.get<Anime[]>(url, { headers }));
+  }
+
   getPrincipalInfo(): Observable<PrincipalInfo> {
     const url = `${this.baseUrl}/users/@me`;
     return this.withAuthHeaders((headers) => this.http.get<PrincipalInfo>(url, { headers }));
