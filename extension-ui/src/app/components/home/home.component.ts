@@ -264,8 +264,11 @@ export class HomeComponent implements OnInit {
     return `https://myanimelist.net/anime/${anime.id}`;
   }
 
-  protected truncate(text: string): string {
-    const maxLength = 30;
+sd  protected prepareAnimeSearchUrl(): string {
+    return `https://myanimelist.net`;
+  }
+
+  protected truncate(text: string, maxLength: number = 30): string {
     if (!text) return '';
     return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
   }
