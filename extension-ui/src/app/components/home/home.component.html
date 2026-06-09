@@ -137,7 +137,7 @@
               <div class="space-y-2 flex-1 overflow-y-auto">
                 @for (missingTitle of anime.missingTitles; track missingTitle.title) {
                   <div>
-                    <div class="font-medium text-gray-800">
+                    <div class="text-[11px] uppercase tracking-wide text-gray-800 font-semibold">
                       {{ missingTitle.relationTypeFormatted }}
                     </div>
 
@@ -148,7 +148,7 @@
                       class="block text-brand-primary hover:underline"
                       [title]="missingTitle.title"
                     >
-                      {{ truncate(missingTitle.title, 28) }}
+                      {{ truncate(missingTitle.title, 27) }}
                     </a>
                   </div>
                 }
@@ -192,14 +192,14 @@
                 </h2>
                 <div class="text-gray-600 space-y-1">
                   <p>
-                    <span class="font-medium text-gray-800">Aired On:</span> {{ anime.startDate }}
+                    <span class="font-semibold text-gray-800">Aired On:</span> {{ anime.startDate }}
                   </p>
                   <p>
-                    <span class="font-medium text-gray-800">Total Episodes:</span>
+                    <span class="font-semibold text-gray-800">Total Episodes:</span>
                     {{ anime.numEpisodes > 0 ? anime.numEpisodes : 'Unknown' }}
                   </p>
                   <p>
-                    <span class="font-medium text-gray-800">Expected Finish:</span>
+                    <span class="font-semibold text-gray-800">Expected Finish:</span>
                     {{ calculateEstimatedEndDateWithDays(anime.startDate, anime.numEpisodes) }}
                   </p>
                 </div>
