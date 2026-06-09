@@ -11,5 +11,5 @@ public record AnimeListNodeDtoRest(Long id, String title,
                                    @JsonProperty("main_picture")
                                    MainPictureDto mainPicture) {
 
-    public static final String DEFAULT_FIELDS = "id,title,main_picture,start_date,num_episodes";
+    public static final String DEFAULT_FIELDS = "id,title,main_picture,start_date,num_episodes,list_status";
 }

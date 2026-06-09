@@ -1,5 +1,8 @@
 package com.marcelmalewski.miruhqapi.mal.dtorest;
 
-public record AnimeListDataDtoRest(AnimeListNodeDtoRest node) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record AnimeListDataDtoRest(AnimeListNodeDtoRest node,
+                                   @JsonProperty("list_status") AnimeListListStatusDtoRest listStatus) {
 
 }

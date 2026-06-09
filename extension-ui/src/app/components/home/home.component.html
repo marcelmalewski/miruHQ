@@ -112,6 +112,60 @@
           Search term must be at least 3 characters long
         </div>
       </div>
+    } @else if (currentSearchMode() === SearchMode.MISSING_TITLES) {
+      <div
+        class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,24rem)] place-content-start"
+      >
+        @for (anime of animeList(); track anime.id; let i = $index) {
+          <div
+            class="w-96 min-h-60 h-60 bg-white rounded-xl flex flex-row overflow-hidden shadow-lg"
+          >
+            <img
+              [ngSrc]="anime.mainPicture.medium"
+              [alt]="anime.title"
+              width="160"
+              height="240"
+              class="h-full w-2/5 object-cover"
+              [priority]="i === 0"
+            />
+
+            <div class="p-5 w-3/5 flex flex-col justify-between">
+              <div>
+                <h2 class="text-lg font-semibold text-text-primary mb-3">
+                  {{ truncate(anime.title) }}
+                </h2>
+
+                <div class="flex flex-col gap-2 max-h-32 overflow-y-auto">
+                  @for (missingTitle of anime.missingTitles; track missingTitle.title) {
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span
+                        class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full shrink-0"
+                      >
+                        {{ missingTitle.relationTypeFormatted }}
+                      </span>
+
+                      <span class="text-sm text-gray-800">
+                        {{ missingTitle.title }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <a
+                  [href]="prepareAnimeDetailsUrl(anime)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-block text-center w-full bg-brand-primary text-white px-3 py-1 rounded hover:bg-brand-secondary transition-colors text-sm"
+                >
+                  Details
+                </a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
     } @else {
       <div
         class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,24rem)] place-content-start"
@@ -164,6 +218,7 @@
         }
       </div>
     }
+
     <div class="flex justify-center gap-5 text-xl">
       <select
         class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"

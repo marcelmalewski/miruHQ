@@ -27,12 +27,11 @@ public class MalPrincipalAnimeService {
 
     @Cacheable(
         value = "principal-anime",
-        key = "#username + ':' + #status + ':' + #sortField"
+        key = "#username + ':' + #sortField"
     )
     public List<AnimeDto> getAllPrincipalAnime(
         String username,
         String token,
-        String status,
         String sortField
     ) {
         final var allPrincipalAnime = new ArrayList<AnimeDto>();
@@ -44,7 +43,6 @@ public class MalPrincipalAnimeService {
             final var response = malApiPrincipalClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/users/@me/animelist")
                     .queryParam("fields", AnimeListNodeDtoRest.DEFAULT_FIELDS)
-                    .queryParam("status", status)
                     .queryParam("limit", limit)
                     .queryParam("offset", currentOffset)
                     .queryParam("sort", sortField)
@@ -71,7 +69,7 @@ public class MalPrincipalAnimeService {
         }
 
         return animeListDtoRest.data().stream().map(
-                animeListDataDtoRest -> this.animeDtoMapper.toAnimeDto(animeListDataDtoRest.node()))
+                animeListDataDtoRest -> this.animeDtoMapper.toAnimeDto(animeListDataDtoRest.node(), animeListDataDtoRest.listStatus()))
             .toList();
     }
 }

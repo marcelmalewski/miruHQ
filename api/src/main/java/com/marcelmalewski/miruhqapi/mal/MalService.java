@@ -66,20 +66,26 @@ public class MalService {
     ) {
         final var principalInfo = getPrincipalInfo(token);
         final List<AnimeDto> principalAnimeList = malPrincipalAnimeService.getAllPrincipalAnime(
-            principalInfo.name(), token, status, sortField);
+            principalInfo.name(), token, sortField);
+
         final var principalAnimeListIds = principalAnimeList.stream()
             .map(AnimeDto::id)
             .collect(Collectors.toSet());
+        final var principalAnimeListFilteredByStatus = principalAnimeList.stream()
+            .filter(animeDto -> Objects.equals(
+                animeDto.status(), status)).toList();
 
         final List<AnimeDto> animeWithMissingTitles = new ArrayList<>();
-        for (AnimeDto animeDto : principalAnimeList) {
+        for (AnimeDto animeDto : principalAnimeListFilteredByStatus) {
             final var animeDetailsDtoRest = malAnimeRelationsService.findAnimeRelations(
                 animeDto.id());
 
             final List<RelatedAnimeDto> missingTitles = Objects.requireNonNull(animeDetailsDtoRest)
                 .relatedAnime().stream()
-                .filter(relatedAnimeDtoRest -> !principalAnimeListIds.contains(
-                    relatedAnimeDtoRest.node().id()))
+                .filter(relatedAnimeDtoRest -> principalAnimeListIds.contains(
+                    relatedAnimeDtoRest.node().id()) == false &&
+                    relatedAnimeDtoRest.relationType().equals("other") == false
+                        && relatedAnimeDtoRest.relationType().equals("summary") == false && relatedAnimeDtoRest.relationType().equals("character") == false)
                 .map(relatedAnimeDtoRest -> new RelatedAnimeDto(
                     relatedAnimeDtoRest.node().title(),
                     relatedAnimeDtoRest.node().mainPicture(),
@@ -97,6 +103,7 @@ public class MalService {
                     animeDto.startDate(),
                     animeDto.numEpisodes(),
                     animeDto.mainPicture(),
+                    animeDto.status(),
                     missingTitles
                 )
             );
