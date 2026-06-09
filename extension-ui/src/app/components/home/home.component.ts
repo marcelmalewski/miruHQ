@@ -264,7 +264,7 @@ export class HomeComponent implements OnInit {
     return `https://myanimelist.net/anime/${anime.id}`;
   }
 
-sd  protected prepareAnimeSearchUrl(): string {
+  protected prepareAnimeSearchUrl(): string {
     return `https://myanimelist.net`;
   }
 
