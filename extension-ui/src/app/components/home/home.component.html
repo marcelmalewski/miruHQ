@@ -129,30 +129,24 @@
               [priority]="i === 0"
             />
 
-            <div class="p-5 w-3/5 flex flex-col justify-between">
-              <div>
-                <h2 class="text-lg font-semibold text-text-primary mb-3">
+            <div class="p-5 w-3/5 flex flex-col justify-between text-sm">
+              <div class="flex flex-col">
+                <h2 class="text-lg font-semibold text-text-primary mb-2">
                   {{ truncate(anime.title) }}
                 </h2>
-
-                <div class="flex flex-col gap-2 max-h-32 overflow-y-auto">
+                <div class="space-y-2 flex-1 overflow-y-auto">
                   @for (missingTitle of anime.missingTitles; track missingTitle.title) {
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span
-                        class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full shrink-0"
-                      >
-                        {{ missingTitle.relationTypeFormatted }}
-                      </span>
-
-                      <span class="text-sm text-gray-800">
-                        {{ missingTitle.title }}
-                      </span>
-                    </div>
+                    <p>
+                      {{ missingTitle.relationTypeFormatted }}
+                    </p>
+                    <p>
+                      {{ truncate(missingTitle.title) }}
+                    </p>
                   }
                 </div>
               </div>
 
-              <div class="mt-3">
+              <div class="mt-2">
                 <a
                   [href]="prepareAnimeDetailsUrl(anime)"
                   target="_blank"
