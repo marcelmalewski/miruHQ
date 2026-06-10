@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, from, Observable, switchMap } from 'rxjs';
 import { Anime, PrincipalInfo } from '../spec/mal-spec';
 
@@ -31,9 +31,20 @@ export class MalService {
     offset: number,
     statusOption: string,
     sortField: string,
+    refreshPrincipalAnime: boolean,
+    refreshAnimeRelations: boolean,
   ): Observable<Anime[]> {
-    const url = `${this.baseUrl}/users/@me/missing-titles?limit=${pageSize}&offset=${offset}&status=${statusOption}&sortField=${sortField}`;
-    return this.withAuthHeaders((headers) => this.http.get<Anime[]>(url, { headers }));
+    const params = new HttpParams()
+      .set('limit', pageSize)
+      .set('offset', offset)
+      .set('status', statusOption)
+      .set('sortField', sortField)
+      .set('refreshPrincipalAnime', refreshPrincipalAnime)
+      .set('refreshAnimeRelations', refreshAnimeRelations);
+
+    return this.withAuthHeaders((headers) =>
+      this.http.get<Anime[]>(`${this.baseUrl}/users/@me/missing-titles`, { headers, params }),
+    );
   }
 
   getPrincipalInfo(): Observable<PrincipalInfo> {

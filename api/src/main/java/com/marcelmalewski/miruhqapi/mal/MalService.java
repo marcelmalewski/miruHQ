@@ -7,6 +7,7 @@ import com.marcelmalewski.miruhqapi.mal.dto.RelatedAnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeListDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeListNodeDtoRest;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -67,26 +68,34 @@ public class MalService {
         Boolean refreshAnimeRelations
     ) {
         final var principalInfo = getPrincipalInfo(token);
-        final List<AnimeDto> principalAnimeList = Boolean.TRUE.equals(refreshPrincipalAnime)
-            ? malPrincipalAnimeService.refreshAllPrincipalAnime(
-            principalInfo.name(), token, sortField)
-            : malPrincipalAnimeService.findAllPrincipalAnime(
-                principalInfo.name(), token, sortField);
 
+        if (Boolean.TRUE.equals(refreshPrincipalAnime)) {
+            malPrincipalAnimeService.evictPrincipalAnime(principalInfo.name());
+        }
+        if (Boolean.TRUE.equals(refreshAnimeRelations)) {
+            malAnimeRelationsService.evictAllAnimeRelations();
+        }
+
+        final List<AnimeDto> principalAnimeList = malPrincipalAnimeService.findAllPrincipalAnime(
+            principalInfo.name(),
+            token
+        );
         final var principalAnimeListIds = principalAnimeList.stream()
             .map(AnimeDto::id)
             .collect(Collectors.toSet());
-        final var principalAnimeListFilteredByStatus = principalAnimeList.stream()
-            .filter(animeDto -> Objects.equals(
-                animeDto.status(), status)).toList();
+        final var principalAnimeListFilteredByStatus =
+            sortAnime(
+                principalAnimeList.stream()
+                    .filter(animeDto -> Objects.equals(animeDto.status(), status))
+                    .toList(),
+                sortField
+            );
 
         final List<AnimeDto> animeWithMissingTitles = new ArrayList<>();
         for (AnimeDto animeDto : principalAnimeListFilteredByStatus) {
-            final var animeDetailsDtoRest = Boolean.TRUE.equals(refreshAnimeRelations)
-                ? malAnimeRelationsService.refreshMalAnimeRelations(animeDto.id())
-                : malAnimeRelationsService.findAnimeRelations(animeDto.id());
+            final var animeDetailsDto = malAnimeRelationsService.findAnimeRelations(animeDto.id());
 
-            final List<RelatedAnimeDto> missingTitles = Objects.requireNonNull(animeDetailsDtoRest)
+            final List<RelatedAnimeDto> missingTitles = Objects.requireNonNull(animeDetailsDto)
                 .relatedAnime().stream()
                 .filter(relatedAnimeDtoRest -> principalAnimeListIds.contains(
                     relatedAnimeDtoRest.node().id()) == false &&
@@ -125,6 +134,49 @@ public class MalService {
             .skip(offset)
             .limit(limit)
             .toList();
+    }
+
+    private List<AnimeDto> sortAnime(
+        List<AnimeDto> anime,
+        String sortField
+    ) {
+        List<AnimeDto> sorted = new ArrayList<>(anime);
+
+        switch (sortField) {
+//            case "list_score" ->
+//                sorted.sort(
+//                    Comparator.comparing(
+//                        AnimeDto::score,
+//                        Comparator.nullsLast(Integer::compareTo)
+//                    ).reversed()
+//                );
+//
+//            case "list_updated_at" ->
+//                sorted.sort(
+//                    Comparator.comparing(
+//                        AnimeDto::updatedAt,
+//                        Comparator.nullsLast(String::compareTo)
+//                    ).reversed()
+//                );
+
+            case "anime_title" ->
+                sorted.sort(
+                    Comparator.comparing(
+                        AnimeDto::title,
+                        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
+                    )
+                );
+
+            case "anime_start_date" ->
+                sorted.sort(
+                    Comparator.comparing(
+                        AnimeDto::startDate,
+                        Comparator.nullsLast(String::compareTo)
+                    ).reversed()
+                );
+        }
+
+        return sorted;
     }
 
     protected List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {

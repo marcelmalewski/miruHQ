@@ -221,6 +221,8 @@ export class HomeComponent implements OnInit {
         offset,
         searchAnimeRequest.status,
         searchAnimeRequest.sortField,
+        false,
+        false,
       )
       .subscribe((data) => {
         this.animeList.set(data);
@@ -280,7 +282,31 @@ export class HomeComponent implements OnInit {
     this.malService.logout();
   }
 
-  protected onRefreshPrincipalAnime(): void {}
+  protected onRefreshPrincipalAnime(): void {
+    this.refresh(true, false);
+  }
 
-  protected onRefreshMalAnimeRelations(): void {}
+  protected onRefreshMalAnimeRelations(): void {
+    this.refresh(false, true);
+  }
+
+  private refresh(refreshPrincipalAnime: boolean, refreshAnimeRelations: boolean): void {
+    const request = this.searchAnimeRequest as SearchPrincipalAnimeListRequest;
+
+    this.malService
+      .findPrincipalMissingTitles(
+        request.pageSize,
+        0,
+        request.status,
+        request.sortField,
+        refreshPrincipalAnime,
+        refreshAnimeRelations,
+      )
+      .subscribe((data) => {
+        request.page = 1;
+
+        this.animeList.set(data);
+        this.hasNextPage.set(data.length === request.pageSize);
+      });
+  }
 }

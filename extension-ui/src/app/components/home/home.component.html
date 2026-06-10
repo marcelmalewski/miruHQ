@@ -89,10 +89,18 @@
           }
         </select>
         @if (currentSearchMode() === SearchMode.MISSING_TITLES) {
-          <button type="button" class="px-3 py-1 border-2 border-black rounded cursor-pointer">
+          <button
+            type="button"
+            class="px-3 py-1 border-2 border-black rounded cursor-pointer"
+            (click)="onRefreshPrincipalAnime()"
+          >
             Refresh your anime
           </button>
-          <button type="button" class="px-3 py-1 border-2 border-black rounded cursor-pointer">
+          <button
+            type="button"
+            class="px-3 py-1 border-2 border-black rounded cursor-pointer"
+            (click)="onRefreshMalAnimeRelations()"
+          >
             Refresh relations
           </button>
           <div class="relative">

@@ -7,7 +7,7 @@ import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeListNodeDtoRest;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -28,31 +28,11 @@ public class MalPrincipalAnimeService {
 
     @Cacheable(
         value = "principal-anime",
-        key = "#username + ':' + #sortField"
+        key = "#username"
     )
     public List<AnimeDto> findAllPrincipalAnime(
         String username,
-        String token,
-        String sortField
-    ) {
-        return fetchAllPrincipalAnime(token, sortField);
-    }
-
-    @CachePut(
-        value = "principal-anime",
-        key = "#username + ':' + #sortField"
-    )
-    public List<AnimeDto> refreshAllPrincipalAnime(
-        String username,
-        String token,
-        String sortField
-    ) {
-        return fetchAllPrincipalAnime(token, sortField);
-    }
-
-    private List<AnimeDto> fetchAllPrincipalAnime(
-        String token,
-        String sortField
+        String token
     ) {
         final var allPrincipalAnime = new ArrayList<AnimeDto>();
         final int limit = 1000;
@@ -67,7 +47,6 @@ public class MalPrincipalAnimeService {
                     .queryParam("fields", AnimeListNodeDtoRest.DEFAULT_FIELDS)
                     .queryParam("limit", limit)
                     .queryParam("offset", currentOffset)
-                    .queryParam("sort", sortField)
                     .build())
                 .header("Authorization", "Bearer " + token)
                 .retrieve()
@@ -84,6 +63,14 @@ public class MalPrincipalAnimeService {
         }
 
         return allPrincipalAnime;
+    }
+
+    @CacheEvict(
+        value = "principal-anime",
+        key = "#username"
+    )
+    public void evictPrincipalAnime(String username) {
+        // Spring handles the eviction
     }
 
     private List<AnimeDto> mapAnimeListDto(AnimeListDtoRest animeListDtoRest) {
