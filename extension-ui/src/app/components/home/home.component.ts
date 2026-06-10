@@ -271,12 +271,16 @@ export class HomeComponent implements OnInit {
     return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
   }
 
-  protected onAuthenticate() {
+  protected onAuthenticate(): void {
     // window.open('https://www.miruhq.org/oauth');
     window.open('http://localhost:4200/oauth');
   }
 
-  protected onLogout() {
+  protected onLogout(): void {
     this.malService.logout();
   }
+
+  protected onRefreshPrincipalAnime(): void {}
+
+  protected onRefreshMalAnimeRelations(): void {}
 }

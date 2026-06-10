@@ -99,6 +99,7 @@
             <button
               type="button"
               class="px-3 py-1 border-2 border-black rounded cursor-pointer"
+              [class.opacity-50]="!showHelp()"
               (click)="showHelp.set(!showHelp())"
             >
               Help
@@ -106,20 +107,28 @@
 
             @if (showHelp()) {
               <div
-                class="absolute top-full mt-2 right-0 z-50 w-96 border-2 border-black bg-bg-primary p-4 text-sm shadow-lg"
+                class="absolute top-full mt-2 right-0 z-10 w-96 border border-black bg-bg-primary p-5 text-sm shadow-xl"
               >
-                <ul class="list-disc ml-5 space-y-1">
-                  Some of data is saved for optimization purpose and stored for around one day.
-                  <li>
-                    <span class="font-semibold text-gray-800">"Refresh your anime"</span>: click
-                    this refresh button when you added sth new to your anime list
-                  </li>
-                  <li>
-                    <span class="font-semibold text-gray-800">"Refresh relations"</span>: click this
-                    refresh button when you saw new anime was added that relate to some of your
-                    anime from your list
-                  </li>
-                </ul>
+                <h2 class="mb-2 font-semibold text-lg">Missing Titles Help</h2>
+
+                <p class="mb-4 text-gray-800">
+                  Some data is cached for performance reasons and may be stored for up to one day.
+                </p>
+
+                <div class="mb-2 text-gray-800">
+                  <div class="font-semibold">Refresh your anime</div>
+                  <div>
+                    Use this when you add, remove, or update anime in your MyAnimeList library.
+                  </div>
+                </div>
+
+                <div class="mb-2 text-gray-800">
+                  <div class="font-semibold">Refresh relations</div>
+                  <div>
+                    Use this when new sequels, movies, OVAs, specials, or other related titles
+                    become available.
+                  </div>
+                </div>
               </div>
             }
           </div>

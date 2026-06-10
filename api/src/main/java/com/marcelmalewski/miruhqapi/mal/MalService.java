@@ -62,11 +62,16 @@ public class MalService {
         int limit,
         int offset,
         String status,
-        String sortField
+        String sortField,
+        Boolean refreshPrincipalAnime,
+        Boolean refreshAnimeRelations
     ) {
         final var principalInfo = getPrincipalInfo(token);
-        final List<AnimeDto> principalAnimeList = malPrincipalAnimeService.getAllPrincipalAnime(
-            principalInfo.name(), token, sortField);
+        final List<AnimeDto> principalAnimeList = Boolean.TRUE.equals(refreshPrincipalAnime)
+            ? malPrincipalAnimeService.refreshAllPrincipalAnime(
+            principalInfo.name(), token, sortField)
+            : malPrincipalAnimeService.findAllPrincipalAnime(
+                principalInfo.name(), token, sortField);
 
         final var principalAnimeListIds = principalAnimeList.stream()
             .map(AnimeDto::id)
@@ -77,15 +82,17 @@ public class MalService {
 
         final List<AnimeDto> animeWithMissingTitles = new ArrayList<>();
         for (AnimeDto animeDto : principalAnimeListFilteredByStatus) {
-            final var animeDetailsDtoRest = malAnimeRelationsService.findAnimeRelations(
-                animeDto.id());
+            final var animeDetailsDtoRest = Boolean.TRUE.equals(refreshAnimeRelations)
+                ? malAnimeRelationsService.refreshMalAnimeRelations(animeDto.id())
+                : malAnimeRelationsService.findAnimeRelations(animeDto.id());
 
             final List<RelatedAnimeDto> missingTitles = Objects.requireNonNull(animeDetailsDtoRest)
                 .relatedAnime().stream()
                 .filter(relatedAnimeDtoRest -> principalAnimeListIds.contains(
                     relatedAnimeDtoRest.node().id()) == false &&
                     relatedAnimeDtoRest.relationType().equals("other") == false
-                        && relatedAnimeDtoRest.relationType().equals("summary") == false && relatedAnimeDtoRest.relationType().equals("character") == false)
+                    && relatedAnimeDtoRest.relationType().equals("summary") == false
+                    && relatedAnimeDtoRest.relationType().equals("character") == false)
                 .map(relatedAnimeDtoRest -> new RelatedAnimeDto(
                     relatedAnimeDtoRest.node().id(),
                     relatedAnimeDtoRest.node().title(),
