@@ -7,4 +7,12 @@ public record AnimeDetailsDtoRest(
     @JsonProperty("related_anime")
     List<RelatedAnimeDtoRest> relatedAnime
 ) {
+
+    public static class FIELDS {
+
+        public static final String RELATED_ANIME = "related_anime";
+
+        private FIELDS() {
+        }
+    }
 }

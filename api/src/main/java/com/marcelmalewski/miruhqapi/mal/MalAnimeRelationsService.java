@@ -3,6 +3,7 @@ package com.marcelmalewski.miruhqapi.mal;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDetailsDto;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeDetailsDtoRest;
+import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeDetailsDtoRest.FIELDS;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,7 +32,7 @@ public class MalAnimeRelationsService {
         final AnimeDetailsDtoRest result = publicApiClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path("/anime/{id}")
-                .queryParam("fields", "related_anime")
+                .queryParam("fields", FIELDS.RELATED_ANIME)
                 .build(animeId))
             .retrieve()
             .body(AnimeDetailsDtoRest.class);

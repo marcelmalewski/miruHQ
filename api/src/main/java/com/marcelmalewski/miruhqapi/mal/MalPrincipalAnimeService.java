@@ -1,5 +1,7 @@
 package com.marcelmalewski.miruhqapi.mal;
 
+import static com.marcelmalewski.miruhqapi.config.MalClientConfig.MAL_API_PRINCIPAL_URL_BASE;
+
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeListDtoRest;
@@ -26,6 +28,23 @@ public class MalPrincipalAnimeService {
         this.animeDtoMapper = animeDtoMapper;
     }
 
+    public List<AnimeDto> findPrincipalAnimeList(String token, Integer limit, Integer offset,
+        String status, String sortField) {
+        final var response = malApiPrincipalClient.get()
+            .uri(uriBuilder -> uriBuilder.path(MAL_API_PRINCIPAL_URL_BASE + "/animelist")
+                .queryParam("fields", AnimeListNodeDtoRest.DEFAULT_FIELDS)
+                .queryParam("status", status)
+                .queryParam("limit", limit)
+                .queryParam("offset", offset)
+                .queryParam("sort", sortField)
+                .build())
+            .header("Authorization", "Bearer " + token)
+            .retrieve()
+            .body(AnimeListDtoRest.class);
+
+        return mapAnimeListDto(response);
+    }
+
     @Cacheable(
         value = "principal-anime",
         key = "#username"
@@ -43,7 +62,7 @@ public class MalPrincipalAnimeService {
 
             final AnimeListDtoRest response = malApiPrincipalClient.get()
                 .uri(uriBuilder -> uriBuilder
-                    .path("/users/@me/animelist")
+                    .path(MAL_API_PRINCIPAL_URL_BASE + "/animelist")
                     .queryParam("fields", AnimeListNodeDtoRest.DEFAULT_FIELDS)
                     .queryParam("limit", limit)
                     .queryParam("offset", currentOffset)

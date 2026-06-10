@@ -1,5 +1,7 @@
 package com.marcelmalewski.miruhqapi.mal;
 
+import static com.marcelmalewski.miruhqapi.config.MalClientConfig.MAL_API_PRINCIPAL_URL_BASE;
+
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDto;
@@ -36,26 +38,14 @@ public class MalService {
     }
 
     protected PrincipalInfoDto getPrincipalInfo(String token) {
-        return malApiPrincipalClient.get().uri(uriBuilder -> uriBuilder.path("/users/@me").build())
+        return malApiPrincipalClient.get().uri(uriBuilder -> uriBuilder.path(MAL_API_PRINCIPAL_URL_BASE).build())
             .header("Authorization", "Bearer " + token).retrieve()
             .body(PrincipalInfoDto.class);
     }
 
     protected List<AnimeDto> findPrincipalAnimeList(String token, Integer limit, Integer offset,
         String status, String sortField) {
-        final var response = malApiPrincipalClient.get()
-            .uri(uriBuilder -> uriBuilder.path("/users/@me/animelist")
-                .queryParam("fields", AnimeListNodeDtoRest.DEFAULT_FIELDS)
-                .queryParam("status", status)
-                .queryParam("limit", limit)
-                .queryParam("offset", offset)
-                .queryParam("sort", sortField)
-                .build())
-            .header("Authorization", "Bearer " + token)
-            .retrieve()
-            .body(AnimeListDtoRest.class);
-
-        return mapAnimeListDto(response);
+        return malPrincipalAnimeService.findPrincipalAnimeList(token, limit, offset, status, sortField);
     }
 
     protected List<AnimeDto> findPrincipalMissingTitles(
@@ -121,7 +111,9 @@ public class MalService {
                     animeDto.numEpisodes(),
                     animeDto.mainPicture(),
                     animeDto.status(),
-                    missingTitles
+                    missingTitles,
+                    animeDto.score(),
+                    animeDto.updatedAt()
                 )
             );
 
@@ -137,46 +129,40 @@ public class MalService {
     }
 
     private List<AnimeDto> sortAnime(
-        List<AnimeDto> anime,
+        List<AnimeDto> animeDtoList,
         String sortField
     ) {
-        List<AnimeDto> sorted = new ArrayList<>(anime);
+        List<AnimeDto> animeDtoListSorted = new ArrayList<>(animeDtoList);
 
         switch (sortField) {
-//            case "list_score" ->
-//                sorted.sort(
-//                    Comparator.comparing(
-//                        AnimeDto::score,
-//                        Comparator.nullsLast(Integer::compareTo)
-//                    ).reversed()
-//                );
-//
-//            case "list_updated_at" ->
-//                sorted.sort(
-//                    Comparator.comparing(
-//                        AnimeDto::updatedAt,
-//                        Comparator.nullsLast(String::compareTo)
-//                    ).reversed()
-//                );
+            case "list_score" -> animeDtoListSorted.sort(
+                Comparator.comparing(
+                    AnimeDto::score,
+                    Comparator.nullsLast(Integer::compareTo)
+                ).reversed()
+            );
+            case "list_updated_at" -> animeDtoListSorted.sort(
+                Comparator.comparing(
+                    AnimeDto::updatedAt,
+                    Comparator.nullsLast(String::compareTo)
+                ).reversed()
+            );
+            case "anime_title" -> animeDtoListSorted.sort(
+                Comparator.comparing(
+                    AnimeDto::title,
+                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
+                )
+            );
 
-            case "anime_title" ->
-                sorted.sort(
-                    Comparator.comparing(
-                        AnimeDto::title,
-                        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
-                    )
-                );
-
-            case "anime_start_date" ->
-                sorted.sort(
-                    Comparator.comparing(
-                        AnimeDto::startDate,
-                        Comparator.nullsLast(String::compareTo)
-                    ).reversed()
-                );
+            case "anime_start_date" -> animeDtoListSorted.sort(
+                Comparator.comparing(
+                    AnimeDto::startDate,
+                    Comparator.nullsLast(String::compareTo)
+                ).reversed()
+            );
         }
 
-        return sorted;
+        return animeDtoListSorted;
     }
 
     protected List<AnimeDto> findAnime(Integer limit, Integer offset, String title) {

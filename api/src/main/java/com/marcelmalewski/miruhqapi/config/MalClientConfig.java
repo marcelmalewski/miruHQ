@@ -10,6 +10,7 @@ public class MalClientConfig {
 
     public static final String MAL_URL_BASE = "https://myanimelist.net/";
     public static final String MAL_API_URL_BASE = "https://api.myanimelist.net/v2";
+    public static final String MAL_API_PRINCIPAL_URL_BASE = "/users/@me";
 
     @Value("${mal.client-id}")
     private String clientId;
