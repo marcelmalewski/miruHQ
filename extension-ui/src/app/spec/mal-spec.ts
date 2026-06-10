@@ -1,5 +1,5 @@
 export interface Anime {
-  id: string;
+  id: number;
   title: string;
   startDate: string;
   numEpisodes: number;
@@ -18,6 +18,7 @@ export interface PrincipalInfo {
 }
 
 export interface RelatedAnimeDto {
+  id: number;
   title: string;
   mainPicture: MainPicture;
   relationTypeFormatted: string;

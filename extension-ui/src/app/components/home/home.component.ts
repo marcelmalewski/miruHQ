@@ -260,12 +260,8 @@ export class HomeComponent implements OnInit {
     return `https://myanimelist.net/profile/${principalInfo.name}`;
   }
 
-  protected prepareAnimeDetailsUrl(anime: Anime): string {
-    return `https://myanimelist.net/anime/${anime.id}`;
-  }
-
-  protected prepareAnimeSearchUrl(): string {
-    return `https://myanimelist.net`;
+  protected prepareAnimeDetailsUrl(id: number): string {
+    return `https://myanimelist.net/anime/${id}`;
   }
 
   protected truncate(text: string, maxLength: number = 30): string {

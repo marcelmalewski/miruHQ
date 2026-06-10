@@ -87,6 +87,7 @@ public class MalService {
                     relatedAnimeDtoRest.relationType().equals("other") == false
                         && relatedAnimeDtoRest.relationType().equals("summary") == false && relatedAnimeDtoRest.relationType().equals("character") == false)
                 .map(relatedAnimeDtoRest -> new RelatedAnimeDto(
+                    relatedAnimeDtoRest.node().id(),
                     relatedAnimeDtoRest.node().title(),
                     relatedAnimeDtoRest.node().mainPicture(),
                     relatedAnimeDtoRest.relationTypeFormatted()
