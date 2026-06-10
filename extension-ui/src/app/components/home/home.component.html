@@ -89,13 +89,40 @@
           }
         </select>
         @if (currentSearchMode() === SearchMode.MISSING_TITLES) {
-          <button
-            type="button"
-            class="px-3 py-1 border-2 border-black rounded cursor-pointer transition-opacity"
-            [class.opacity-50]="currentSearchMode() !== SearchMode.MISSING_TITLES"
-          >
-            Refresh
+          <button type="button" class="px-3 py-1 border-2 border-black rounded cursor-pointer">
+            Refresh your anime
           </button>
+          <button type="button" class="px-3 py-1 border-2 border-black rounded cursor-pointer">
+            Refresh relations
+          </button>
+          <div class="relative">
+            <button
+              type="button"
+              class="px-3 py-1 border-2 border-black rounded cursor-pointer"
+              (click)="showHelp.set(!showHelp())"
+            >
+              Help
+            </button>
+
+            @if (showHelp()) {
+              <div
+                class="absolute top-full mt-2 right-0 z-50 w-96 border-2 border-black bg-bg-primary p-4 text-sm shadow-lg"
+              >
+                <ul class="list-disc ml-5 space-y-1">
+                  Some of data is saved for optimization purpose and stored for around one day.
+                  <li>
+                    <span class="font-semibold text-gray-800">"Refresh your anime"</span>: click
+                    this refresh button when you added sth new to your anime list
+                  </li>
+                  <li>
+                    <span class="font-semibold text-gray-800">"Refresh relations"</span>: click this
+                    refresh button when you saw new anime was added that relate to some of your
+                    anime from your list
+                  </li>
+                </ul>
+              </div>
+            }
+          </div>
         }
       } @else {
         <input

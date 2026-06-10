@@ -73,6 +73,8 @@ export class HomeComponent implements OnInit {
 
   protected readonly titleInputTooShort: WritableSignal<boolean> = signal<boolean>(false);
 
+  protected readonly showHelp: WritableSignal<boolean> = signal<boolean>(false);
+
   ngOnInit(): void {
     chrome.storage.local.get(['malToken'], (result) => {
       this.principalMode.set(!!result['malToken']);
