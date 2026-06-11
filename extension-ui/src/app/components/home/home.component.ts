@@ -303,5 +303,39 @@ export class HomeComponent implements OnInit {
       });
   }
 
+  readonly showRelationFilter = signal(false);
+
+  readonly selectedRelationTypes = signal<string[]>([]);
+
+  toggleRelationType(relationType: string): void {
+    this.selectedRelationTypes.update((current) =>
+      current.includes(relationType)
+        ? current.filter((x) => x !== relationType)
+        : [...current, relationType],
+    );
+  }
+
+  readonly relationTypes = [
+    'sequel',
+    'prequel',
+    'alternative_setting',
+    'alternative_version',
+    'side_story',
+    'parent_story',
+    'summary',
+    'full_story',
+  ];
+
+  readonly relationTypeLabels: Record<string, string> = {
+    sequel: 'Sequel',
+    prequel: 'Prequel',
+    alternative_setting: 'Alternative Setting',
+    alternative_version: 'Alternative Version',
+    side_story: 'Side Story',
+    parent_story: 'Parent Story',
+    summary: 'Summary',
+    full_story: 'Full Story',
+  };
+
   protected readonly AnimeTileService = AnimeTileService;
 }

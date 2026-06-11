@@ -88,6 +88,33 @@
             <option>{{ sortField }}</option>
           }
         </select>
+        <div class="relative">
+          <button
+            type="button"
+            class="px-3 py-1 border-2 border-black rounded"
+            (click)="showRelationFilter.set(!showRelationFilter())"
+          >
+            Relation Types
+          </button>
+
+          @if (showRelationFilter()) {
+            <div
+              class="absolute top-full left-0 mt-2 bg-white border border-black p-3 shadow-lg z-10"
+            >
+              @for (relationType of relationTypes; track relationType) {
+                <label class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedRelationTypes().includes(relationType)"
+                    (change)="toggleRelationType(relationType)"
+                  />
+                  {{ relationTypeLabels[relationType] }}
+                </label>
+              }
+            </div>
+          }
+        </div>
+
         @if (currentSearchMode() === SearchMode.MISSING_TITLES) {
           <button
             type="button"
