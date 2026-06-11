@@ -111,7 +111,6 @@ public class MalService {
                 .filter(relatedAnimeDtoRest -> principalAnimeListIds.contains(
                     relatedAnimeDtoRest.node().id()) == false &&
                     relatedAnimeDtoRest.relationType().equals("other") == false
-                    && relatedAnimeDtoRest.relationType().equals("summary") == false
                     && relatedAnimeDtoRest.relationType().equals("character") == false)
                 .map(relatedAnimeDtoRest -> new RelatedAnimeDto(
                     relatedAnimeDtoRest.node().id(),

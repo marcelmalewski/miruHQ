@@ -352,15 +352,11 @@ export class HomeComponent implements OnInit {
       (type) => this.relationTypeLabels[type],
     );
 
-    if (selectedRelationType.length === 0) {
-      return 'Relation types';
-    }
     if (selectedRelationType.length === this.relationTypes.length) {
       return 'All relation types';
     }
 
     let displayText = '';
-
     for (const relationType of selectedRelationType) {
       const newDisplayText = displayText ? `${displayText}, ${relationType}` : relationType;
 
