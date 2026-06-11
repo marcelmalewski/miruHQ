@@ -12,6 +12,9 @@ import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-i
 import { NgOptimizedImage } from '@angular/common';
 import { Anime, PrincipalInfo } from '../../spec/mal-spec';
 import {
+  AnimeRelationType,
+  AnimeRelationTypes,
+  AnimeRelationTypeToPrettyRelationType,
   AnimeSortFields,
   AnimeStatuses,
   AnimeStatusToPrettyStatus,
@@ -57,7 +60,7 @@ export class HomeComponent implements OnInit {
     sortField: AnimeSortFields.ANIME_START_DATE,
     page: 1,
     pageSize: this.pageSizeOptions[0],
-    relationTypes: ['sequel'],
+    relationTypes: [AnimeRelationTypes.SEQUEL],
   };
   protected searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
 
@@ -82,6 +85,36 @@ export class HomeComponent implements OnInit {
     { initialValue: null },
   );
 
+  protected readonly selectedRelationTypesDisplayText = computed(() => {
+    const maxLength = 18;
+    const selectedRelationType = this.selectedRelationTypes().map(
+      (relationType) => AnimeRelationTypeToPrettyRelationType[relationType],
+    );
+
+    if (selectedRelationType.length === Object.values(AnimeRelationTypes).length) {
+      return 'All relation types';
+    }
+
+    let displayText = '';
+    for (const relationType of selectedRelationType) {
+      const newDisplayText = displayText ? `${displayText}, ${relationType}` : relationType;
+
+      if (newDisplayText.length > maxLength) {
+        return `${newDisplayText.slice(0, maxLength - 3)}...`;
+      }
+
+      displayText = newDisplayText;
+    }
+
+    return displayText;
+  });
+
+  protected readonly showRelationFilter = signal(false);
+
+  protected readonly selectedRelationTypes = signal<AnimeRelationType[]>([
+    AnimeRelationTypes.SEQUEL,
+  ]);
+
   protected readonly animeList: WritableSignal<Anime[]> = signal<Anime[]>([]);
 
   protected readonly titleInputTooShort: WritableSignal<boolean> = signal<boolean>(false);
@@ -97,7 +130,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private initSetup() {
+  private initSetup(): void {
     this.currentSearchMode.set(
       this.principalMode() ? SearchModes.PRINCIPAL_ANIME : SearchModes.ALL_ANIME,
     );
@@ -110,7 +143,7 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  private initialLoadPage() {
+  private initialLoadPage(): void {
     if (this.currentSearchMode() === SearchModes.ALL_ANIME) {
       this.handleTitleInputTooShort();
       return;
@@ -118,7 +151,7 @@ export class HomeComponent implements OnInit {
     this.loadPage();
   }
 
-  private searchByTitle(titleInput: string) {
+  private searchByTitle(titleInput: string): void {
     if (titleInput.length < 3) {
       this.handleTitleInputTooShort();
       return;
@@ -128,24 +161,24 @@ export class HomeComponent implements OnInit {
     this.loadPage();
   }
 
-  private handleTitleInputTooShort() {
+  private handleTitleInputTooShort(): void {
     this.animeList.set([]);
     this.hasNextPage.set(false);
     this.titleInputTooShort.set(true);
   }
 
-  protected onTitleInputChange(titleInput: string) {
+  protected onTitleInputChange(titleInput: string): void {
     this.searchTitleInput$.next(titleInput);
   }
 
-  protected onModeKeyDown(event: KeyboardEvent, mode: string) {
+  protected onModeKeyDown(event: KeyboardEvent, mode: string): void {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       this.switchMode(mode);
     }
   }
 
-  protected switchMode(mode: string) {
+  protected switchMode(mode: string): void {
     if (this.currentSearchMode() === mode) return;
 
     this.currentSearchMode.set(mode as SearchMode);
@@ -171,30 +204,42 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  protected onPageChange(page: number) {
+  protected onPageChange(page: number): void {
     this.searchAnimeRequest.page = page;
     this.loadPage();
   }
 
-  protected onPageSizeChange(newLimit: number) {
+  protected onPageSizeChange(newLimit: number): void {
     this.searchAnimeRequest.pageSize = newLimit;
     this.searchAnimeRequest.page = 1;
     this.loadPage();
   }
 
-  protected onStatusChange(prettyStatus: PrettyAnimeStatus) {
+  protected onStatusChange(prettyStatus: PrettyAnimeStatus): void {
     this.searchAnimeRequest.status = PrettyAnimeStatusToStatus[prettyStatus];
     this.searchAnimeRequest.page = 1;
     this.loadPage();
   }
 
-  protected onSortFieldChange(prettySortField: PrettyAnimeSortField) {
+  protected onSortFieldChange(prettySortField: PrettyAnimeSortField): void {
     this.searchAnimeRequest.sortField = PrettyAnimeSortFieldToSortField[prettySortField];
     this.searchAnimeRequest.page = 1;
     this.loadPage();
   }
 
-  private loadPage() {
+  protected onRelationTypesChange(newRelationType: AnimeRelationType): void {
+    this.selectedRelationTypes.update((selectedRelationTypes) =>
+      selectedRelationTypes.includes(newRelationType)
+        ? selectedRelationTypes.filter((relationType) => relationType !== newRelationType)
+        : [...selectedRelationTypes, newRelationType],
+    );
+
+    this.searchAnimeRequest.page = 1;
+    this.searchAnimeRequest.relationTypes = this.selectedRelationTypes();
+    this.loadPage();
+  }
+
+  private loadPage(): void {
     const offset = (this.searchAnimeRequest.page - 1) * this.searchAnimeRequest.pageSize;
 
     this.loading.set(true);
@@ -218,7 +263,7 @@ export class HomeComponent implements OnInit {
   private loadPrincipalAnimeList(
     searchAnimeRequest: SearchPrincipalAnimeListRequest,
     offset: number,
-  ) {
+  ): void {
     this.malService
       .findPrincipalAnimeList(
         searchAnimeRequest.pageSize,
@@ -233,7 +278,10 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  private loadPrincipalMissingTitles(searchRequest: SearchPrincipalMissingTitles, offset: number) {
+  private loadPrincipalMissingTitles(
+    searchRequest: SearchPrincipalMissingTitles,
+    offset: number,
+  ): void {
     this.malService
       .findPrincipalMissingTitles(
         searchRequest.pageSize,
@@ -251,7 +299,7 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  private loadAllAnimeList(searchAnimeRequest: SearchAllAnimeRequest, offset: number) {
+  private loadAllAnimeList(searchAnimeRequest: SearchAllAnimeRequest, offset: number): void {
     this.malService
       .findAnime(searchAnimeRequest.pageSize, offset, searchAnimeRequest.title)
       .pipe(finalize(() => this.loading.set(false)))
@@ -286,7 +334,7 @@ export class HomeComponent implements OnInit {
     return diffDays < 0 ? `Finished` : `${endDateStr} (${diffDays} days remaining)`;
   }
 
-  protected preparePrincipalInfoDetailsUrl(principalInfo: PrincipalInfo) {
+  protected preparePrincipalInfoDetailsUrl(principalInfo: PrincipalInfo): string {
     return `https://myanimelist.net/profile/${principalInfo.name}`;
   }
 
@@ -328,67 +376,8 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  readonly showRelationFilter = signal(false);
-
-  readonly selectedRelationTypes = signal<string[]>(['sequel']);
-
-  onRelationTypesChange(newRelationType: string): void {
-    this.selectedRelationTypes.update((selectedRelationTypes) =>
-      selectedRelationTypes.includes(newRelationType)
-        ? selectedRelationTypes.filter((relationType) => relationType !== newRelationType)
-        : [...selectedRelationTypes, newRelationType],
-    );
-
-    this.searchAnimeRequest.page = 1;
-    this.searchAnimeRequest.relationTypes = this.selectedRelationTypes();
-    this.loadPage();
-  }
-
-  readonly relationTypes = [
-    'sequel',
-    'prequel',
-    'alternative_setting',
-    'alternative_version',
-    'side_story',
-    'parent_story',
-    'summary',
-    'full_story',
-  ];
-
-  readonly relationTypeLabels: Record<string, string> = {
-    sequel: 'Sequel',
-    prequel: 'Prequel',
-    alternative_setting: 'Alternative Setting',
-    alternative_version: 'Alternative Version',
-    side_story: 'Side Story',
-    parent_story: 'Parent Story',
-    summary: 'Summary',
-    full_story: 'Full Story',
-  };
-
-  readonly selectedRelationTypesDisplayText = computed(() => {
-    const maxLength = 18;
-    const selectedRelationType = this.selectedRelationTypes().map(
-      (type) => this.relationTypeLabels[type],
-    );
-
-    if (selectedRelationType.length === this.relationTypes.length) {
-      return 'All relation types';
-    }
-
-    let displayText = '';
-    for (const relationType of selectedRelationType) {
-      const newDisplayText = displayText ? `${displayText}, ${relationType}` : relationType;
-
-      if (newDisplayText.length > maxLength) {
-        return `${newDisplayText.slice(0, maxLength - 3)}...`;
-      }
-
-      displayText = newDisplayText;
-    }
-
-    return displayText;
-  });
-
   protected readonly AnimeTileService = AnimeTileService;
+  protected readonly Object = Object;
+  protected readonly AnimeRelationTypes = AnimeRelationTypes;
+  protected readonly AnimeRelationTypeToPrettyRelationType = AnimeRelationTypeToPrettyRelationType;
 }

@@ -104,7 +104,7 @@
               <div
                 class="absolute top-full left-0 w-56 bg-gray-100 border border-t-0 border-black shadow-lg z-50"
               >
-                @for (relationType of relationTypes; track relationType) {
+                @for (relationType of Object.values(AnimeRelationTypes); track relationType) {
                   <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-200 cursor-pointer">
                     <input
                       type="checkbox"
@@ -112,7 +112,7 @@
                       (change)="onRelationTypesChange(relationType)"
                     />
 
-                    {{ relationTypeLabels[relationType] }}
+                    {{ AnimeRelationTypeToPrettyRelationType[relationType] }}
                   </label>
                 }
               </div>

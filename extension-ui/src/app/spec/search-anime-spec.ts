@@ -6,7 +6,7 @@ export interface SearchPrincipalAnimeListRequest extends PaginatedRequest {
 export interface SearchPrincipalMissingTitles extends PaginatedRequest {
   status: AnimeStatus;
   sortField: AnimeSortField;
-  relationTypes: string[];
+  relationTypes: AnimeRelationType[];
 }
 
 export interface SearchAllAnimeRequest extends PaginatedRequest {
@@ -17,7 +17,7 @@ export interface SearchAnimeRequest extends PaginatedRequest {
   title?: string;
   status?: AnimeStatus;
   sortField?: AnimeSortField;
-  relationTypes?: string[];
+  relationTypes?: AnimeRelationType[];
 }
 
 export const SearchModes = {
@@ -87,4 +87,49 @@ export const PrettyAnimeSortFieldToSortField: Record<PrettyAnimeSortField, Anime
   'Last updated': AnimeSortFields.LIST_UPDATED_AT,
   Title: AnimeSortFields.ANIME_TITLE,
   'Start date': AnimeSortFields.ANIME_START_DATE,
+};
+
+export const AnimeRelationTypes = {
+  SEQUEL: 'sequel',
+  PREQUEL: 'prequel',
+  ALTERNATIVE_SETTING: 'alternative_setting',
+  ALTERNATIVE_VERSION: 'alternative_version',
+  SIDE_STORY: 'side_story',
+  PARENT_STORY: 'parent_story',
+  SUMMARY: 'summary',
+  FULL_STORY: 'full_story',
+} as const;
+
+type AnimeRelationTypeKeys = keyof typeof AnimeRelationTypes;
+
+export type AnimeRelationType = (typeof AnimeRelationTypes)[AnimeRelationTypeKeys];
+
+export const PrettyAnimeRelationTypes = {
+  SEQUEL: 'Sequel',
+  PREQUEL: 'Prequel',
+  ALTERNATIVE_SETTING: 'Alternative Setting',
+  ALTERNATIVE_VERSION: 'Alternative Version',
+  SIDE_STORY: 'Side Story',
+  PARENT_STORY: 'Parent Story',
+  SUMMARY: 'Summary',
+  FULL_STORY: 'Full Story',
+} as const;
+
+type PrettyAnimeRelationTypeKeys = keyof typeof PrettyAnimeRelationTypes;
+
+export type PrettyAnimeRelationType =
+  (typeof PrettyAnimeRelationTypes)[PrettyAnimeRelationTypeKeys];
+
+export const AnimeRelationTypeToPrettyRelationType: Record<
+  AnimeRelationType,
+  PrettyAnimeRelationType
+> = {
+  sequel: PrettyAnimeRelationTypes.SEQUEL,
+  prequel: PrettyAnimeRelationTypes.PREQUEL,
+  alternative_setting: PrettyAnimeRelationTypes.ALTERNATIVE_SETTING,
+  alternative_version: PrettyAnimeRelationTypes.ALTERNATIVE_VERSION,
+  side_story: PrettyAnimeRelationTypes.SIDE_STORY,
+  parent_story: PrettyAnimeRelationTypes.PARENT_STORY,
+  summary: PrettyAnimeRelationTypes.SUMMARY,
+  full_story: PrettyAnimeRelationTypes.FULL_STORY,
 };
