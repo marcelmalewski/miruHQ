@@ -186,6 +186,7 @@
                 <h2 class="text-lg font-semibold text-text-primary mb-2">
                   {{ AnimeTileService.truncate(anime.title) }}
                 </h2>
+
                 <div class="text-gray-600 space-y-1">
                   <p>
                     <span class="font-semibold text-gray-800">Aired On:</span> {{ anime.startDate }}
@@ -207,6 +208,7 @@
                   target="_blank"
                   rel="noopener noreferrer"
                   class="inline-block text-center w-full bg-brand-primary text-white px-3 py-1 rounded hover:bg-brand-secondary transition-colors text-sm"
+                  [title]="anime.title"
                 >
                   Details
                 </a>
