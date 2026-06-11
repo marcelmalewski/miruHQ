@@ -28,7 +28,7 @@ import {
   SearchPrincipalAnimeListRequest,
   SearchPrincipalMissingTitles,
 } from '../../spec/search-anime-spec';
-import { debounceTime, distinctUntilChanged, of, Subject, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, of, Subject, switchMap } from 'rxjs';
 import { AnimeTileService } from '../../services/anime-tile.service';
 import { MissingTitleComponent } from '../missing-title/missing-title.component';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
@@ -87,6 +87,8 @@ export class HomeComponent implements OnInit {
   protected readonly titleInputTooShort: WritableSignal<boolean> = signal<boolean>(false);
 
   protected readonly showHelp: WritableSignal<boolean> = signal<boolean>(false);
+
+  protected readonly loading = signal(true);
 
   ngOnInit(): void {
     chrome.storage.local.get(['malToken'], (result) => {
@@ -195,6 +197,9 @@ export class HomeComponent implements OnInit {
   private loadPage() {
     const offset = (this.searchAnimeRequest.page - 1) * this.searchAnimeRequest.pageSize;
 
+    this.loading.set(true);
+    this.animeList.set([]);
+
     if (this.currentSearchMode() === SearchModes.PRINCIPAL_ANIME) {
       this.loadPrincipalAnimeList(
         this.searchAnimeRequest as SearchPrincipalAnimeListRequest,
@@ -221,6 +226,7 @@ export class HomeComponent implements OnInit {
         searchAnimeRequest.status,
         searchAnimeRequest.sortField,
       )
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe((data) => {
         this.animeList.set(data);
         this.hasNextPage.set(data.length === this.searchAnimeRequest.pageSize);
@@ -238,6 +244,7 @@ export class HomeComponent implements OnInit {
         false,
         searchRequest.relationTypes,
       )
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe((data) => {
         this.animeList.set(data);
         this.hasNextPage.set(data.length === this.searchAnimeRequest.pageSize);
@@ -247,6 +254,7 @@ export class HomeComponent implements OnInit {
   private loadAllAnimeList(searchAnimeRequest: SearchAllAnimeRequest, offset: number) {
     this.malService
       .findAnime(searchAnimeRequest.pageSize, offset, searchAnimeRequest.title)
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe((data) => {
         this.animeList.set(data);
         this.hasNextPage.set(data.length === this.searchAnimeRequest.pageSize);

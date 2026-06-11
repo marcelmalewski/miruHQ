@@ -180,7 +180,13 @@
       }
     </div>
 
-    @if (titleInputTooShort()) {
+    @if (loading()) {
+      <div class="flex-grow flex items-center justify-center gap-5">
+        <div
+          class="w-32 h-32 border-8 border-brand-secondary border-t-brand-primary rounded-full animate-spin"
+        ></div>
+      </div>
+    } @else if (titleInputTooShort()) {
       <div class="flex-grow flex justify-start items-center flex-col gap-5">
         <div class="mt-5 px-3 py-1 border-2 border-red-500 bg-red-50 text-red-700 text-xl">
           Search term must be at least 3 characters long
@@ -263,14 +269,14 @@
       </select>
       <button
         class="px-3 py-1 border-2 border-black rounded disabled:opacity-50"
-        [disabled]="searchAnimeRequest.page === 1"
+        [disabled]="searchAnimeRequest.page === 1 || loading()"
         (click)="onPageChange(searchAnimeRequest.page - 1)"
       >
         Prev
       </button>
       <button
         class="px-3 py-1 border-2 border-black rounded disabled:opacity-50"
-        [disabled]="!hasNextPage()"
+        [disabled]="!hasNextPage() || loading()"
         (click)="onPageChange(searchAnimeRequest.page + 1)"
       >
         Next
