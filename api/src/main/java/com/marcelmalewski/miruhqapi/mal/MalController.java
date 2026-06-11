@@ -1,5 +1,6 @@
 package com.marcelmalewski.miruhqapi.mal;
 
+import com.marcelmalewski.miruhqapi.config.AppProperties;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDto;
 import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDto;
@@ -17,10 +18,13 @@ public class MalController {
 
     private final MalService malService;
     private final MalOAuthService malOAuthService;
+    private final AppProperties appProperties;
 
-    public MalController(MalService malService, MalOAuthService malOAuthService) {
+    public MalController(MalService malService, MalOAuthService malOAuthService,
+        AppProperties appProperties) {
         this.malService = malService;
         this.malOAuthService = malOAuthService;
+        this.appProperties = appProperties;
     }
 
     @GetMapping("/api/users/@me")
@@ -72,11 +76,7 @@ public class MalController {
     @GetMapping("/api/oauth/mal/callback")
     public void callback(@RequestParam String code, @RequestParam String state,
         HttpServletResponse response) throws IOException {
-
-//        String redirectUrl = "https://www.miruhq.org/oauth-success#" +
-//            "code=" + code +
-//            "&state=" + state;
-        String redirectUrl = "http://localhost:4200/oauth-success#" +
+        String redirectUrl = appProperties.oauthUrl() + "/oauth-success#" +
             "code=" + code +
             "&state=" + state;
         response.sendRedirect(redirectUrl);

@@ -3,6 +3,7 @@ package com.marcelmalewski.miruhqapi.mal;
 import static com.marcelmalewski.miruhqapi.config.MalClientConfig.MAL_URL_BASE;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
+import com.marcelmalewski.miruhqapi.config.AppProperties;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDto;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dto.MalTokenDtoRest;
@@ -23,8 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class MalOAuthService {
 
     private static final int MAX_STATES = 10_000;
-//    private static final String REDIRECT_URI = "https://miruhq-api.onrender.com/api/oauth/mal/callback";
-    private static final String REDIRECT_URI = "http://localhost:8080/api/oauth/mal/callback";
+    private static final String REDIRECT_URI = "/api/oauth/mal/callback";
 
     @Value("${mal.client-id}")
     private String clientId;
@@ -35,10 +35,13 @@ public class MalOAuthService {
 
     private final RestClient malV1Client;
     private final MalTokenDtoMapper malTokenDtoMapper;
+    private final AppProperties appProperties;
 
-    public MalOAuthService(RestClient malV1Client, MalTokenDtoMapper malTokenDtoMapper) {
+    public MalOAuthService(RestClient malV1Client, MalTokenDtoMapper malTokenDtoMapper,
+        AppProperties appProperties) {
         this.malV1Client = malV1Client;
         this.malTokenDtoMapper = malTokenDtoMapper;
+        this.appProperties = appProperties;
     }
 
     protected String buildAuthorizationUrl() {
@@ -61,7 +64,7 @@ public class MalOAuthService {
         return MAL_URL_BASE + "v1/oauth2/authorize"
             + "?response_type=code"
             + "&client_id=" + clientId
-            + "&redirect_uri=" + REDIRECT_URI
+            + "&redirect_uri=" + appProperties.backendUrl() + REDIRECT_URI
             + "&state=" + state
             + "&code_challenge=" + codeVerifier
             + "&code_challenge_method=plain";
@@ -88,7 +91,7 @@ public class MalOAuthService {
         body.add("client_secret", clientSecret);
         body.add("grant_type", "authorization_code");
         body.add("code", code);
-        body.add("redirect_uri", REDIRECT_URI);
+        body.add("redirect_uri", appProperties.backendUrl() + REDIRECT_URI);
         body.add("code_verifier", stored.codeVerifier());
 
         final var token = malV1Client.post()

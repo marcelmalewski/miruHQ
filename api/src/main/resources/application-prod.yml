@@ -11,3 +11,7 @@ cors:
 logging:
   level:
     root: INFO
+
+app:
+  oauth-url: https://www.miruhq.org
+  backend-url: https://miruhq-api.onrender.com
