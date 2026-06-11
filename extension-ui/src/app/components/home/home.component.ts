@@ -254,6 +254,10 @@ export class HomeComponent implements OnInit {
   }
 
   protected calculateEstimatedEndDateWithDays(startDateStr: string, numEpisodes: number): string {
+    if (!startDateStr) {
+      return 'Unknown';
+    }
+
     const startDateParts = startDateStr.split('-');
     if (startDateParts.length < 3 || numEpisodes === 0) {
       return 'Unknown';

@@ -37,7 +37,7 @@
         <button
           type="button"
           class="px-3 py-1 border-2 border-black rounded cursor-pointer transition-opacity"
-          [class.opacity-50]="currentSearchMode() !== SearchMode.PRINCIPAL_ANIME"
+          [class.bg-gray-300]="currentSearchMode() === SearchMode.PRINCIPAL_ANIME"
           (click)="switchMode(SearchMode.PRINCIPAL_ANIME)"
           (keydown)="onModeKeyDown($event, SearchMode.PRINCIPAL_ANIME)"
         >
@@ -47,7 +47,7 @@
       <button
         type="button"
         class="px-3 py-1 border-2 border-black rounded cursor-pointer transition-opacity"
-        [class.opacity-50]="currentSearchMode() !== SearchMode.ALL_ANIME"
+        [class.bg-gray-300]="currentSearchMode() === SearchMode.ALL_ANIME"
         (click)="switchMode(SearchMode.ALL_ANIME)"
         (keydown)="onModeKeyDown($event, SearchMode.ALL_ANIME)"
       >
@@ -57,7 +57,7 @@
         <button
           type="button"
           class="px-3 py-1 border-2 border-black rounded cursor-pointer transition-opacity"
-          [class.opacity-50]="currentSearchMode() !== SearchMode.MISSING_TITLES"
+          [class.bg-gray-300]="currentSearchMode() === SearchMode.MISSING_TITLES"
           (click)="switchMode(SearchMode.MISSING_TITLES)"
           (keydown)="onModeKeyDown($event, SearchMode.MISSING_TITLES)"
         >
@@ -137,7 +137,7 @@
             <button
               type="button"
               class="px-3 py-1 border-2 border-black rounded cursor-pointer"
-              [class.opacity-50]="!showHelp()"
+              [class.bg-gray-300]="showHelp()"
               (click)="showHelp.set(!showHelp())"
             >
               Help
@@ -219,7 +219,8 @@
 
                 <div class="text-gray-600 space-y-1">
                   <p>
-                    <span class="font-semibold text-gray-800">Aired On:</span> {{ anime.startDate }}
+                    <span class="font-semibold text-gray-800">Aired On:</span>
+                    {{ anime.startDate ? anime.startDate : 'Unknown' }}
                   </p>
                   <p>
                     <span class="font-semibold text-gray-800">Total Episodes:</span>
