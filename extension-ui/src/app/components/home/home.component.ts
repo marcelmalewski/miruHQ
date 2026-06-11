@@ -1,4 +1,12 @@
-import { Component, DestroyRef, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { MalService } from '../../services/mal.service';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NgOptimizedImage } from '@angular/common';
@@ -22,11 +30,12 @@ import {
 import { debounceTime, distinctUntilChanged, of, Subject, switchMap } from 'rxjs';
 import { AnimeTileService } from '../../services/anime-tile.service';
 import { MissingTitleComponent } from '../missing-title/missing-title.component';
+import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
-  imports: [NgOptimizedImage, MissingTitleComponent],
+  imports: [NgOptimizedImage, MissingTitleComponent, ClickOutsideDirective],
 })
 export class HomeComponent implements OnInit {
   private readonly malService = inject(MalService);
@@ -336,6 +345,34 @@ export class HomeComponent implements OnInit {
     summary: 'Summary',
     full_story: 'Full Story',
   };
+
+  readonly selectedRelationTypesDisplayText = computed(() => {
+    const maxLength = 18;
+    const selectedRelationType = this.selectedRelationTypes().map(
+      (type) => this.relationTypeLabels[type],
+    );
+
+    if (selectedRelationType.length === 0) {
+      return 'Relation types';
+    }
+    if (selectedRelationType.length === this.relationTypes.length) {
+      return 'All relation types';
+    }
+
+    let displayText = '';
+
+    for (const relationType of selectedRelationType) {
+      const newDisplayText = displayText ? `${displayText}, ${relationType}` : relationType;
+
+      if (newDisplayText.length > maxLength) {
+        return `${newDisplayText.slice(0, maxLength - 3)}...`;
+      }
+
+      displayText = newDisplayText;
+    }
+
+    return displayText;
+  });
 
   protected readonly AnimeTileService = AnimeTileService;
 }

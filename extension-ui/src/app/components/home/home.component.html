@@ -72,7 +72,7 @@
         currentSearchMode() === SearchMode.MISSING_TITLES
       ) {
         <select
-          class="border-2 px-3 py-1 border-black rounded-none focus:outline-none focus:ring-0"
+          class="border-2 px-3 py-1 bg-gray-100 border-black rounded-none focus:outline-none focus:ring-0"
           (change)="onStatusChange($any($event.target).value)"
           [value]="selectedStatus()"
         >
@@ -81,41 +81,44 @@
           }
         </select>
         <select
-          class="border-2 px-3 py-1 border-black rounded-none focus:outline-none focus:ring-0"
+          class="border-2 px-3 py-1 bg-gray-100 border-black rounded-none focus:outline-none focus:ring-0"
           (change)="onSortFieldChange($any($event.target).value)"
         >
           @for (sortField of prettySortFields; track sortField) {
             <option>{{ sortField }}</option>
           }
         </select>
-        <div class="relative">
-          <button
-            type="button"
-            class="px-3 py-1 border-2 border-black rounded"
-            (click)="showRelationFilter.set(!showRelationFilter())"
-          >
-            Relation Types
-          </button>
-
-          @if (showRelationFilter()) {
-            <div
-              class="absolute top-full left-0 mt-2 bg-white border border-black p-3 shadow-lg z-10"
-            >
-              @for (relationType of relationTypes; track relationType) {
-                <label class="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    [checked]="selectedRelationTypes().includes(relationType)"
-                    (change)="toggleRelationType(relationType)"
-                  />
-                  {{ relationTypeLabels[relationType] }}
-                </label>
-              }
-            </div>
-          }
-        </div>
 
         @if (currentSearchMode() === SearchMode.MISSING_TITLES) {
+          <div class="relative" (clickOutside)="showRelationFilter.set(false)">
+            <button
+              type="button"
+              class="border-2 border-black pl-3 pr-1 py-1 min-w-56 bg-gray-100 flex items-center justify-between"
+              (click)="showRelationFilter.set(!showRelationFilter())"
+            >
+              <span>{{ selectedRelationTypesDisplayText() }}</span>
+              <span>▾</span>
+            </button>
+
+            @if (showRelationFilter()) {
+              <div
+                class="absolute top-full left-0 w-56 bg-gray-100 border border-t-0 border-black shadow-lg z-50"
+              >
+                @for (relationType of relationTypes; track relationType) {
+                  <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-200 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [checked]="selectedRelationTypes().includes(relationType)"
+                      (change)="toggleRelationType(relationType)"
+                    />
+
+                    {{ relationTypeLabels[relationType] }}
+                  </label>
+                }
+              </div>
+            }
+          </div>
+
           <button
             type="button"
             class="px-3 py-1 border-2 border-black rounded cursor-pointer"
@@ -248,7 +251,7 @@
 
     <div class="flex justify-center gap-5 text-xl">
       <select
-        class="border-2 px-2 border-black rounded-none focus:outline-none focus:ring-0"
+        class="border-2 px-2 bg-gray-100 border-black rounded-none focus:outline-none focus:ring-0"
         (change)="onPageSizeChange($any($event.target).value)"
       >
         @for (size of pageSizeOptions; track size) {
