@@ -160,62 +160,8 @@
       <div
         class="grid flex-grow gap-5 overflow-y-auto p-2 grid-cols-[repeat(auto-fill,24rem)] place-content-start"
       >
-        @for (anime of animeList(); track anime.id; let i = $index) {
-          <div
-            class="w-96 min-h-60 h-60 bg-white rounded-xl flex flex-row overflow-hidden shadow-lg"
-          >
-            <img
-              [ngSrc]="anime.mainPicture.medium"
-              [alt]="anime.title"
-              width="160"
-              height="240"
-              class="h-full w-2/5 object-cover"
-              [priority]="i === 0"
-            />
-
-            <div class="p-5 w-3/5 flex flex-col text-sm">
-              <h2
-                class="text-lg font-semibold text-text-primary mb-2 border-b-2 border-brand-primary"
-              >
-                {{ truncate(anime.title) }}
-              </h2>
-
-              <div class="space-y-2 flex-1 overflow-y-auto">
-                @for (
-                  missingTitle of anime.missingTitles;
-                  track missingTitle.title;
-                  let last = $last
-                ) {
-                  <div [class]="last ? 'border-b-2 border-black' : ''">
-                    <div class="text-[11px] uppercase tracking-wide text-gray-800 font-semibold">
-                      {{ missingTitle.relationTypeFormatted }}
-                    </div>
-
-                    <a
-                      [href]="prepareAnimeDetailsUrl(missingTitle.id)"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="block text-brand-primary hover:underline"
-                      [title]="missingTitle.title"
-                    >
-                      {{ truncate(missingTitle.title, 27) }}
-                    </a>
-                  </div>
-                }
-              </div>
-
-              <div class="mt-2">
-                <a
-                  [href]="prepareAnimeDetailsUrl(anime.id)"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-block text-center w-full bg-brand-primary text-white px-3 py-1 rounded hover:bg-brand-secondary transition-colors text-sm"
-                >
-                  Details
-                </a>
-              </div>
-            </div>
-          </div>
+        @for (anime of animeList(); track anime.id) {
+          <missing-title [anime]="anime"></missing-title>
         }
       </div>
     } @else {
@@ -238,7 +184,7 @@
             <div class="p-5 w-3/5 flex flex-col justify-between text-sm">
               <div>
                 <h2 class="text-lg font-semibold text-text-primary mb-2">
-                  {{ truncate(anime.title) }}
+                  {{ AnimeTileService.truncate(anime.title) }}
                 </h2>
                 <div class="text-gray-600 space-y-1">
                   <p>
@@ -257,7 +203,7 @@
 
               <div class="mt-2">
                 <a
-                  [href]="prepareAnimeDetailsUrl(anime.id)"
+                  [href]="AnimeTileService.prepareAnimeDetailsUrl(anime.id)"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="inline-block text-center w-full bg-brand-primary text-white px-3 py-1 rounded hover:bg-brand-secondary transition-colors text-sm"

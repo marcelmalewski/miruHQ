@@ -20,11 +20,13 @@ import {
   SearchPrincipalAnimeListRequest,
 } from '../../spec/search-anime-spec';
 import { debounceTime, distinctUntilChanged, of, Subject, switchMap } from 'rxjs';
+import { AnimeTileService } from '../../services/anime-tile.service';
+import { MissingTitleComponent } from '../missing-title/missing-title.component';
 
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
-  imports: [NgOptimizedImage],
+  imports: [NgOptimizedImage, MissingTitleComponent],
 })
 export class HomeComponent implements OnInit {
   private readonly malService = inject(MalService);
@@ -264,15 +266,6 @@ export class HomeComponent implements OnInit {
     return `https://myanimelist.net/profile/${principalInfo.name}`;
   }
 
-  protected prepareAnimeDetailsUrl(id: number): string {
-    return `https://myanimelist.net/anime/${id}`;
-  }
-
-  protected truncate(text: string, maxLength: number = 30): string {
-    if (!text) return '';
-    return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
-  }
-
   protected onAuthenticate(): void {
     // window.open('https://www.miruhq.org/oauth');
     window.open('http://localhost:4200/oauth');
@@ -309,4 +302,6 @@ export class HomeComponent implements OnInit {
         this.hasNextPage.set(data.length === request.pageSize);
       });
   }
+
+  protected readonly AnimeTileService = AnimeTileService;
 }

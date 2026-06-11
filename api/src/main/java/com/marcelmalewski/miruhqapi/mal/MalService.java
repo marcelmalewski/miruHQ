@@ -2,6 +2,7 @@ package com.marcelmalewski.miruhqapi.mal;
 
 import static com.marcelmalewski.miruhqapi.config.MalClientConfig.MAL_API_PRINCIPAL_URL_BASE;
 
+import com.marcelmalewski.miruhqapi.mal.MalMissingTitlesService.CachedMissingTitles;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDtoMapper;
 import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDto;
@@ -25,27 +26,32 @@ public class MalService {
     private final AnimeDtoMapper animeDtoMapper;
     private final MalAnimeRelationsService malAnimeRelationsService;
     private final MalPrincipalAnimeService malPrincipalAnimeService;
+    private final MalMissingTitlesService malMissingTitlesService;
 
     public MalService(@Qualifier("malApiPublicClient") RestClient publicApiClient,
         @Qualifier("malApiPrincipalClient") RestClient malApiPrincipalClient,
         AnimeDtoMapper animeDtoMapper, MalAnimeRelationsService malAnimeRelationsService,
-        MalPrincipalAnimeService malPrincipalAnimeService) {
+        MalPrincipalAnimeService malPrincipalAnimeService,
+        MalMissingTitlesService malMissingTitlesService) {
         this.publicApiClient = publicApiClient;
         this.malApiPrincipalClient = malApiPrincipalClient;
         this.animeDtoMapper = animeDtoMapper;
         this.malAnimeRelationsService = malAnimeRelationsService;
         this.malPrincipalAnimeService = malPrincipalAnimeService;
+        this.malMissingTitlesService = malMissingTitlesService;
     }
 
     protected PrincipalInfoDto getPrincipalInfo(String token) {
-        return malApiPrincipalClient.get().uri(uriBuilder -> uriBuilder.path(MAL_API_PRINCIPAL_URL_BASE).build())
+        return malApiPrincipalClient.get()
+            .uri(uriBuilder -> uriBuilder.path(MAL_API_PRINCIPAL_URL_BASE).build())
             .header("Authorization", "Bearer " + token).retrieve()
             .body(PrincipalInfoDto.class);
     }
 
     protected List<AnimeDto> findPrincipalAnimeList(String token, Integer limit, Integer offset,
         String status, String sortField) {
-        return malPrincipalAnimeService.findPrincipalAnimeList(token, limit, offset, status, sortField);
+        return malPrincipalAnimeService.findPrincipalAnimeList(token, limit, offset, status,
+            sortField);
     }
 
     protected List<AnimeDto> findPrincipalMissingTitles(
@@ -61,9 +67,11 @@ public class MalService {
 
         if (Boolean.TRUE.equals(refreshPrincipalAnime)) {
             malPrincipalAnimeService.evictPrincipalAnime(principalInfo.name());
+            malMissingTitlesService.evictAllProgress();
         }
         if (Boolean.TRUE.equals(refreshAnimeRelations)) {
             malAnimeRelationsService.evictAllAnimeRelations();
+            malMissingTitlesService.evictAllProgress();
         }
 
         final List<AnimeDto> principalAnimeList = malPrincipalAnimeService.findAllPrincipalAnime(
@@ -81,8 +89,21 @@ public class MalService {
                 sortField
             );
 
-        final List<AnimeDto> animeWithMissingTitles = new ArrayList<>();
-        for (AnimeDto animeDto : principalAnimeListFilteredByStatus) {
+        final var cachedMissingTitles = malMissingTitlesService.getCachedMissingTitles(
+            principalInfo.name(), status, sortField);
+
+        final List<AnimeDto> animeWithMissingTitles = new ArrayList<>(
+            cachedMissingTitles.missingTitles());
+        if (animeWithMissingTitles.size() >= offset + limit) {
+            return animeWithMissingTitles.stream()
+                .skip(offset)
+                .limit(limit)
+                .toList();
+        }
+
+        int index = cachedMissingTitles.scannedIndex();
+        for (; index < principalAnimeListFilteredByStatus.size(); index++) {
+            AnimeDto animeDto = principalAnimeListFilteredByStatus.get(index);
             final var animeDetailsDto = malAnimeRelationsService.findAnimeRelations(animeDto.id());
 
             final List<RelatedAnimeDto> missingTitles = Objects.requireNonNull(animeDetailsDto)
@@ -118,9 +139,20 @@ public class MalService {
             );
 
             if (animeWithMissingTitles.size() >= offset + limit) {
+                index++;
                 break;
             }
         }
+
+        malMissingTitlesService.cacheMissingTitles(
+            principalInfo.name(),
+            status,
+            sortField,
+            new CachedMissingTitles(
+                index,
+                animeWithMissingTitles
+            )
+        );
 
         return animeWithMissingTitles.stream()
             .skip(offset)
