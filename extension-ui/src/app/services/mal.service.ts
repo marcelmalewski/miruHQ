@@ -33,14 +33,31 @@ export class MalService {
     sortField: string,
     refreshPrincipalAnime: boolean,
     refreshAnimeRelations: boolean,
+    relationTypes: string[],
   ): Observable<Anime[]> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('limit', pageSize)
       .set('offset', offset)
       .set('status', statusOption)
       .set('sortField', sortField)
       .set('refreshPrincipalAnime', refreshPrincipalAnime)
       .set('refreshAnimeRelations', refreshAnimeRelations);
+    let selectedRelationTypes = relationTypes;
+    if (!selectedRelationTypes) {
+      selectedRelationTypes = [
+        'sequel',
+        'prequel',
+        'alternative_setting',
+        'alternative_version',
+        'side_story',
+        'parent_story',
+        'summary',
+        'full_story',
+      ];
+    }
+    for (const relationType of selectedRelationTypes) {
+      params = params.append('relationTypes', relationType);
+    }
 
     return this.withAuthHeaders((headers) =>
       this.http.get<Anime[]>(`${this.baseUrl}/users/@me/missing-titles`, { headers, params }),

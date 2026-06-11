@@ -26,6 +26,7 @@ import {
   SearchMode,
   SearchModes,
   SearchPrincipalAnimeListRequest,
+  SearchPrincipalMissingTitles,
 } from '../../spec/search-anime-spec';
 import { debounceTime, distinctUntilChanged, of, Subject, switchMap } from 'rxjs';
 import { AnimeTileService } from '../../services/anime-tile.service';
@@ -56,6 +57,7 @@ export class HomeComponent implements OnInit {
     sortField: AnimeSortFields.ANIME_START_DATE,
     page: 1,
     pageSize: this.pageSizeOptions[0],
+    relationTypes: ['sequel'],
   };
   protected searchAnimeRequest = this.initialSearchAnimeRequestForPrincipalAnimeSearchMode;
 
@@ -161,6 +163,7 @@ export class HomeComponent implements OnInit {
     } else {
       this.titleInputTooShort.set(false);
       this.selectedStatus.set(AnimeStatusToPrettyStatus[AnimeStatuses.COMPLETED]);
+      this.selectedRelationTypes.set(['sequel']);
       this.searchAnimeRequest = this.initialSearchAnimeRequestForMissingTitlesSearchMode;
       this.loadPage();
     }
@@ -179,11 +182,13 @@ export class HomeComponent implements OnInit {
 
   protected onStatusChange(prettyStatus: PrettyAnimeStatus) {
     this.searchAnimeRequest.status = PrettyAnimeStatusToStatus[prettyStatus];
+    this.searchAnimeRequest.page = 1;
     this.loadPage();
   }
 
   protected onSortFieldChange(prettySortField: PrettyAnimeSortField) {
     this.searchAnimeRequest.sortField = PrettyAnimeSortFieldToSortField[prettySortField];
+    this.searchAnimeRequest.page = 1;
     this.loadPage();
   }
 
@@ -199,7 +204,7 @@ export class HomeComponent implements OnInit {
       this.loadAllAnimeList(this.searchAnimeRequest as SearchAllAnimeRequest, offset);
     } else {
       this.loadPrincipalMissingTitles(
-        this.searchAnimeRequest as SearchPrincipalAnimeListRequest,
+        this.searchAnimeRequest as SearchPrincipalMissingTitles,
         offset,
       );
     }
@@ -222,18 +227,16 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  private loadPrincipalMissingTitles(
-    searchAnimeRequest: SearchPrincipalAnimeListRequest,
-    offset: number,
-  ) {
+  private loadPrincipalMissingTitles(searchRequest: SearchPrincipalMissingTitles, offset: number) {
     this.malService
       .findPrincipalMissingTitles(
-        searchAnimeRequest.pageSize,
+        searchRequest.pageSize,
         offset,
-        searchAnimeRequest.status,
-        searchAnimeRequest.sortField,
+        searchRequest.status,
+        searchRequest.sortField,
         false,
         false,
+        searchRequest.relationTypes,
       )
       .subscribe((data) => {
         this.animeList.set(data);
@@ -293,7 +296,7 @@ export class HomeComponent implements OnInit {
   }
 
   private refresh(refreshPrincipalAnime: boolean, refreshAnimeRelations: boolean): void {
-    const request = this.searchAnimeRequest as SearchPrincipalAnimeListRequest;
+    const request = this.searchAnimeRequest as SearchPrincipalMissingTitles;
 
     this.malService
       .findPrincipalMissingTitles(
@@ -303,6 +306,7 @@ export class HomeComponent implements OnInit {
         request.sortField,
         refreshPrincipalAnime,
         refreshAnimeRelations,
+        request.relationTypes,
       )
       .subscribe((data) => {
         request.page = 1;
@@ -314,14 +318,18 @@ export class HomeComponent implements OnInit {
 
   readonly showRelationFilter = signal(false);
 
-  readonly selectedRelationTypes = signal<string[]>([]);
+  readonly selectedRelationTypes = signal<string[]>(['sequel']);
 
-  toggleRelationType(relationType: string): void {
-    this.selectedRelationTypes.update((current) =>
-      current.includes(relationType)
-        ? current.filter((x) => x !== relationType)
-        : [...current, relationType],
+  onRelationTypesChange(newRelationType: string): void {
+    this.selectedRelationTypes.update((selectedRelationTypes) =>
+      selectedRelationTypes.includes(newRelationType)
+        ? selectedRelationTypes.filter((relationType) => relationType !== newRelationType)
+        : [...selectedRelationTypes, newRelationType],
     );
+
+    this.searchAnimeRequest.page = 1;
+    this.searchAnimeRequest.relationTypes = this.selectedRelationTypes();
+    this.loadPage();
   }
 
   readonly relationTypes = [

@@ -109,7 +109,7 @@
                     <input
                       type="checkbox"
                       [checked]="selectedRelationTypes().includes(relationType)"
-                      (change)="toggleRelationType(relationType)"
+                      (change)="onRelationTypesChange(relationType)"
                     />
 
                     {{ relationTypeLabels[relationType] }}

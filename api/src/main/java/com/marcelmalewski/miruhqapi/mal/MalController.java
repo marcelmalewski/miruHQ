@@ -49,11 +49,12 @@ public class MalController {
         @RequestParam String status,
         @RequestParam String sortField,
         @RequestParam Boolean refreshPrincipalAnime,
-        @RequestParam Boolean refreshAnimeRelations
+        @RequestParam Boolean refreshAnimeRelations,
+        @RequestParam(required = false) List<String> relationTypes
         ) {
 
         String token = MalOAuthService.extractToken(authHeader);
-        return malService.findPrincipalMissingTitles(token, limit, offset, status, sortField, refreshPrincipalAnime, refreshAnimeRelations);
+        return malService.findPrincipalMissingTitles(token, limit, offset, status, sortField, refreshPrincipalAnime, refreshAnimeRelations, relationTypes);
     }
 
     @GetMapping("/api/anime")

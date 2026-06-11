@@ -1,6 +1,7 @@
 package com.marcelmalewski.miruhqapi.mal;
 
 import static com.marcelmalewski.miruhqapi.config.MalClientConfig.MAL_API_PRINCIPAL_URL_BASE;
+import static com.marcelmalewski.miruhqapi.mal.dtorest.RelatedAnimeDtoRest.IGNORED_RELATION_TYPES;
 
 import com.marcelmalewski.miruhqapi.mal.MalMissingTitlesService.CachedMissingTitles;
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
@@ -9,6 +10,7 @@ import com.marcelmalewski.miruhqapi.mal.dto.PrincipalInfoDto;
 import com.marcelmalewski.miruhqapi.mal.dto.RelatedAnimeDto;
 import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeListDtoRest;
 import com.marcelmalewski.miruhqapi.mal.dtorest.AnimeListNodeDtoRest;
+import com.marcelmalewski.miruhqapi.mal.dtorest.RelatedAnimeDtoRest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -61,7 +63,8 @@ public class MalService {
         String status,
         String sortField,
         Boolean refreshPrincipalAnime,
-        Boolean refreshAnimeRelations
+        Boolean refreshAnimeRelations,
+        List<String> relationTypes
     ) {
         final var principalInfo = getPrincipalInfo(token);
 
@@ -89,8 +92,9 @@ public class MalService {
                 sortField
             );
 
+        final String relationTypesKey = MalMissingTitlesService.prepareRelationTypesCacheKey(relationTypes);
         final var cachedMissingTitles = malMissingTitlesService.getCachedMissingTitles(
-            principalInfo.name(), status, sortField);
+            principalInfo.name(), status, sortField, relationTypesKey);
 
         final List<AnimeDto> animeWithMissingTitles = new ArrayList<>(
             cachedMissingTitles.missingTitles());
@@ -109,9 +113,10 @@ public class MalService {
             final List<RelatedAnimeDto> missingTitles = Objects.requireNonNull(animeDetailsDto)
                 .relatedAnime().stream()
                 .filter(relatedAnimeDtoRest -> principalAnimeListIds.contains(
-                    relatedAnimeDtoRest.node().id()) == false &&
-                    relatedAnimeDtoRest.relationType().equals("other") == false
-                    && relatedAnimeDtoRest.relationType().equals("character") == false)
+                    relatedAnimeDtoRest.node().id()) == false)
+                .filter(relatedAnimeDtoRest ->
+                    IGNORED_RELATION_TYPES.contains(relatedAnimeDtoRest.relationType()) == false)
+                .filter(relatedAnimeDtoRest -> matchesRelationType(relatedAnimeDtoRest, relationTypes))
                 .map(relatedAnimeDtoRest -> new RelatedAnimeDto(
                     relatedAnimeDtoRest.node().id(),
                     relatedAnimeDtoRest.node().title(),
@@ -147,6 +152,7 @@ public class MalService {
             principalInfo.name(),
             status,
             sortField,
+            relationTypesKey,
             new CachedMissingTitles(
                 index,
                 animeWithMissingTitles
@@ -157,6 +163,13 @@ public class MalService {
             .skip(offset)
             .limit(limit)
             .toList();
+    }
+
+    private boolean matchesRelationType(
+        RelatedAnimeDtoRest relatedAnime,
+        List<String> relationTypes
+    ) {
+        return relationTypes == null || relationTypes.contains(relatedAnime.relationType());
     }
 
     private List<AnimeDto> sortAnime(

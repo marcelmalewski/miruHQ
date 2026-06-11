@@ -2,6 +2,7 @@ package com.marcelmalewski.miruhqapi.mal;
 
 import com.marcelmalewski.miruhqapi.mal.dto.AnimeDto;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,12 +15,13 @@ public class MalMissingTitlesService {
 
     @Cacheable(
         value = CACHE_NAME,
-        key = "#username + ':' + #status + ':' + #sortField"
+        key = "#username + ':' + #status + ':' + #sortField + ':' + #relationTypes"
     )
     public CachedMissingTitles getCachedMissingTitles(
         String username,
         String status,
-        String sortField
+        String sortField,
+        String relationTypes
     ) {
         return new CachedMissingTitles(
             0,
@@ -29,12 +31,13 @@ public class MalMissingTitlesService {
 
     @CachePut(
         value = CACHE_NAME,
-        key = "#username + ':' + #status + ':' + #sortField"
+        key = "#username + ':' + #status + ':' + #sortField + ':' + #relationTypes"
     )
     public CachedMissingTitles cacheMissingTitles(
         String username,
         String status,
         String sortField,
+        String relationTypes,
         CachedMissingTitles missingTitlesToCache
     ) {
         return missingTitlesToCache;
@@ -55,5 +58,15 @@ public class MalMissingTitlesService {
         public CachedMissingTitles {
             missingTitles = List.copyOf(missingTitles);
         }
+    }
+
+    public static String prepareRelationTypesCacheKey(List<String> relationTypes) {
+        if (relationTypes == null || relationTypes.isEmpty()) {
+            return "all";
+        }
+
+        return relationTypes.stream()
+            .sorted()
+            .collect(Collectors.joining(","));
     }
 }

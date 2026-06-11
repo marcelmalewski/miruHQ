@@ -3,6 +3,12 @@ export interface SearchPrincipalAnimeListRequest extends PaginatedRequest {
   sortField: AnimeSortField;
 }
 
+export interface SearchPrincipalMissingTitles extends PaginatedRequest {
+  status: AnimeStatus;
+  sortField: AnimeSortField;
+  relationTypes: string[];
+}
+
 export interface SearchAllAnimeRequest extends PaginatedRequest {
   title: string;
 }
@@ -11,6 +17,7 @@ export interface SearchAnimeRequest extends PaginatedRequest {
   title?: string;
   status?: AnimeStatus;
   sortField?: AnimeSortField;
+  relationTypes?: string[];
 }
 
 export const SearchModes = {
