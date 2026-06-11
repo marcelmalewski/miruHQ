@@ -12,13 +12,7 @@
       {{ AnimeTileService.truncate(anime().title) }}
     </h2>
 
-    <div
-      #scrollContainer
-      class="flex-1 overflow-y-auto border-b-2 pb-1"
-      [class.border-brand-primary]="scrollIsAtBottom()"
-      [class.border-transparent]="!scrollIsAtBottom()"
-      (scroll)="onScroll($event)"
-    >
+    <div #scrollContainer class="flex-1 overflow-y-auto" (scroll)="onScroll($event)">
       <div class="space-y-2">
         @for (missingTitle of anime().missingTitles; track missingTitle.title) {
           <div>
@@ -40,7 +34,11 @@
       </div>
     </div>
 
-    <div class="mt-1">
+    <div
+      class="mt-1 pt-1 border-t-2"
+      [class.border-brand-primary]="scrollIsAtBottom()"
+      [class.border-transparent]="!scrollIsAtBottom()"
+    >
       <a
         [href]="AnimeTileService.prepareAnimeDetailsUrl(anime().id)"
         target="_blank"
