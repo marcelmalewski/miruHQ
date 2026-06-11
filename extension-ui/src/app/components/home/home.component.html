@@ -174,13 +174,19 @@
             />
 
             <div class="p-5 w-3/5 flex flex-col text-sm">
-              <h2 class="text-lg font-semibold text-text-primary mb-2">
+              <h2
+                class="text-lg font-semibold text-text-primary mb-2 border-b-2 border-brand-primary"
+              >
                 {{ truncate(anime.title) }}
               </h2>
 
               <div class="space-y-2 flex-1 overflow-y-auto">
-                @for (missingTitle of anime.missingTitles; track missingTitle.title) {
-                  <div>
+                @for (
+                  missingTitle of anime.missingTitles;
+                  track missingTitle.title;
+                  let last = $last
+                ) {
+                  <div [class]="last ? 'border-b-2 border-black' : ''">
                     <div class="text-[11px] uppercase tracking-wide text-gray-800 font-semibold">
                       {{ missingTitle.relationTypeFormatted }}
                     </div>
