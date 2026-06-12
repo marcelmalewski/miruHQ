@@ -122,7 +122,7 @@ export class HomeComponent implements OnInit {
 
   protected readonly showHelp: WritableSignal<boolean> = signal<boolean>(false);
 
-  protected readonly loading = signal(true);
+  protected readonly loading = signal(false);
 
   ngOnInit(): void {
     chrome.storage.local.get(['malToken'], (result) => {
