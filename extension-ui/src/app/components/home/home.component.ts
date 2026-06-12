@@ -340,7 +340,7 @@ export class HomeComponent implements OnInit {
   }
 
   protected onAuthenticate(): void {
-    window.open(`${environment.backendUrl}/oauth`);
+    window.open(`${environment.oauthUrl}/oauth`);
   }
 
   protected onLogout(): void {
