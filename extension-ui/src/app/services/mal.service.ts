@@ -2,14 +2,14 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, from, Observable, switchMap } from 'rxjs';
 import { Anime, PrincipalInfo } from '../spec/mal-spec';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MalService {
   private readonly http = inject(HttpClient);
-  // private readonly baseUrl = 'https://miruhq-api.onrender.com/api';
-  private readonly baseUrl = 'http://localhost:8080/api';
+  protected readonly baseUrl = `${environment.backendUrl}/api`;
 
   findAnime(pageSize: number, offset: number, title: string): Observable<Anime[]> {
     const url = `${this.baseUrl}/anime?limit=${pageSize}&offset=${offset}&title=${title}`;

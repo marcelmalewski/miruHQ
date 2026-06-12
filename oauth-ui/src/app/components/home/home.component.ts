@@ -6,5 +6,5 @@ import { environment } from '../../../environments/environment';
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
-  protected readonly loginUrl = `${environment.apiUrl}/api/oauth/mal/login`;
+  protected readonly loginUrl = `${environment.backendUrl}/api/oauth/mal/login`;
 }

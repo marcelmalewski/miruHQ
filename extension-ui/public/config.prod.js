@@ -1,4 +1,3 @@
-export const environment = {
-  production: true,
+export const CONFIG = {
   backendUrl: 'https://miruhq-api.onrender.com',
 };

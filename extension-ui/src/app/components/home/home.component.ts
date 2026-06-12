@@ -35,6 +35,7 @@ import { debounceTime, distinctUntilChanged, finalize, of, Subject, switchMap } 
 import { AnimeTileService } from '../../services/anime-tile.service';
 import { MissingTitleComponent } from '../missing-title/missing-title.component';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'home',
@@ -339,8 +340,7 @@ export class HomeComponent implements OnInit {
   }
 
   protected onAuthenticate(): void {
-    // window.open('https://www.miruhq.org/oauth');
-    window.open('http://localhost:4200/oauth');
+    window.open(`${environment.backendUrl}/oauth`);
   }
 
   protected onLogout(): void {

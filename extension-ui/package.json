@@ -2,12 +2,9 @@
   "name": "miru-hq",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "build:extension": "ng build --configuration production",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "build:dev": "cp public/config.dev.js public/config.js && ng build --configuration development",
+    "build:prod": "cp public/config.prod.js public/config.js && ng build --configuration production",
+    "watch:dev": "cp public/config.dev.js public/config.js && ng build --watch --configuration development"
   },
   "prettier": {
     "printWidth": 100,

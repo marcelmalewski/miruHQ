@@ -1,3 +1,5 @@
+import { CONFIG } from './config.js';
+
 chrome.action.onClicked.addListener(() => {
   const url = chrome.runtime.getURL('index.html#/home');
   void chrome.tabs.create({ url });
@@ -10,7 +12,7 @@ chrome.runtime.onMessage.addListener((message, _) => {
 });
 
 async function exchangeMalToken(code, state) {
-  const response = await fetch('http://localhost:8080/api/oauth/mal/exchange', {
+  const response = await fetch(`${CONFIG.backendUrl}/api/oauth/mal/exchange`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -39,7 +41,7 @@ chrome.runtime.onMessage.addListener((message) => {
 async function refreshMalToken() {
   const { malRefreshToken } = await chrome.storage.local.get(['malRefreshToken']);
 
-  const response = await fetch('http://localhost:8080/api/oauth/mal/refresh', {
+  const response = await fetch(`${CONFIG.backendUrl}/api/oauth/mal/refresh`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
