@@ -1,3 +1,3 @@
 export const CONFIG = {
-  backendUrl: 'http://localhost:8080',
+  backendUrl: 'https://miruhq-api.onrender.com',
 };
