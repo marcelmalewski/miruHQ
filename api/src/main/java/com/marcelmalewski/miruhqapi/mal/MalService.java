@@ -169,6 +169,8 @@ public class MalService {
         RelatedAnimeDtoRest relatedAnime,
         List<String> relationTypes
     ) {
+        System.out.println("relatedAnime.node().title()");
+        System.out.println(relatedAnime.node().title());
         return relationTypes == null || relationTypes.contains(relatedAnime.relationType());
     }
 
