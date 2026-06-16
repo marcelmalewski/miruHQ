@@ -14,6 +14,7 @@ import com.marcelmalewski.miruhqapi.mal.dtorest.RelatedAnimeDtoRest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -92,7 +93,8 @@ public class MalService {
                 sortField
             );
 
-        final String relationTypesKey = MalMissingTitlesService.prepareRelationTypesCacheKey(relationTypes);
+        final String relationTypesKey = MalMissingTitlesService.prepareRelationTypesCacheKey(
+            relationTypes);
         final var cachedMissingTitles = malMissingTitlesService.getCachedMissingTitles(
             principalInfo.name(), status, sortField, relationTypesKey);
 
@@ -116,7 +118,8 @@ public class MalService {
                     relatedAnimeDtoRest.node().id()) == false)
                 .filter(relatedAnimeDtoRest ->
                     IGNORED_RELATION_TYPES.contains(relatedAnimeDtoRest.relationType()) == false)
-                .filter(relatedAnimeDtoRest -> matchesRelationType(relatedAnimeDtoRest, relationTypes))
+                .filter(
+                    relatedAnimeDtoRest -> matchesRelationType(relatedAnimeDtoRest, relationTypes))
                 .map(relatedAnimeDtoRest -> new RelatedAnimeDto(
                     relatedAnimeDtoRest.node().id(),
                     relatedAnimeDtoRest.node().title(),
@@ -169,7 +172,8 @@ public class MalService {
         RelatedAnimeDtoRest relatedAnime,
         List<String> relationTypes
     ) {
-        return relationTypes == null || relationTypes.contains(relatedAnime.relationType());
+        return (relationTypes == null || relationTypes.contains(relatedAnime.relationType()))
+            && relatedAnime.relationTypeFormatted().toUpperCase(Locale.ROOT).contains("TV");
     }
 
     private List<AnimeDto> sortAnime(
