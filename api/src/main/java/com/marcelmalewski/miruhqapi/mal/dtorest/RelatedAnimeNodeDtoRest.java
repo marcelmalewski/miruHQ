@@ -6,9 +6,7 @@ import com.marcelmalewski.miruhqapi.mal.dto.MainPictureDto;
 public record RelatedAnimeNodeDtoRest(
     Long id, String title,
     @JsonProperty("main_picture")
-    MainPictureDto mainPicture,
-    @JsonProperty("media_type")
-    String mediaType
+    MainPictureDto mainPicture
 ) {
 
 }
