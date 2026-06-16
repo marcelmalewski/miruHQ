@@ -63,7 +63,7 @@ public class MalPrincipalAnimeService {
             final AnimeListDtoRest response = malApiPrincipalClient.get()
                 .uri(uriBuilder -> uriBuilder
                     .path(MAL_API_PRINCIPAL_URL_BASE + "/animelist")
-                    .queryParam("fields", AnimeListNodeDtoRest.DEFAULT_FIELDS)
+                    .queryParam("fields", AnimeListNodeDtoRest.DEFAULT_FIELDS+",media_type")
                     .queryParam("limit", limit)
                     .queryParam("offset", currentOffset)
                     .build())
