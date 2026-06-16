@@ -7,7 +7,8 @@ public record RelatedAnimeNodeDtoRest(
     Long id, String title,
     @JsonProperty("main_picture")
     MainPictureDto mainPicture,
-    String type
+    @JsonProperty("media_type")
+    String mediaType
 ) {
 
 }

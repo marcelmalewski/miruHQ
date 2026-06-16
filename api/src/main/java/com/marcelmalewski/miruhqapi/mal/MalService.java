@@ -170,7 +170,7 @@ public class MalService {
         List<String> relationTypes
     ) {
         System.out.println("relatedAnime.node().title()");
-        System.out.println(relatedAnime.node().type());
+        System.out.println(relatedAnime.node().mediaType());
         return relationTypes == null || relationTypes.contains(relatedAnime.relationType());
     }
 
