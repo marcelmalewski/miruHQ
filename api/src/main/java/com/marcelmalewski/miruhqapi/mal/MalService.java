@@ -14,7 +14,6 @@ import com.marcelmalewski.miruhqapi.mal.dtorest.RelatedAnimeDtoRest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -172,8 +171,7 @@ public class MalService {
         RelatedAnimeDtoRest relatedAnime,
         List<String> relationTypes
     ) {
-        return (relationTypes == null || relationTypes.contains(relatedAnime.relationType()))
-            && relatedAnime.relationTypeFormatted().toUpperCase(Locale.ROOT).contains("TV");
+        return relationTypes == null || relationTypes.contains(relatedAnime.relationType());
     }
 
     private List<AnimeDto> sortAnime(
